@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="org.vermac.textuallyyoursinstaller.ChatInfo"
+      spacing="10" alignment="CENTER">
+
+    <Label
+            text="DO NOT CLOSE THIS SCREEN UNLESS YOU HAVE SHARED THE FOLLOWING INFORMATION WITH THE OTHER USER"
+            wrapText="true"
+            style="-fx-font-size: 16px"/>
+
+    <padding>
+        <Insets right="20" left="20" top="20" bottom="20"/>
+    </padding>
+
+    <HBox spacing="10" alignment="CENTER">
+        <padding>
+            <Insets right="20" left="20" top="20" bottom="20"/>
+        </padding>
+
+        <GridPane hgap="20" vgap="20" alignment="CENTER">
+            <columnConstraints>
+                <ColumnConstraints hgrow="ALWAYS" minWidth="100"/>
+                <ColumnConstraints minWidth="250"/>
+            </columnConstraints>
+
+            <Label text="Room code: "
+                   GridPane.rowIndex="0" GridPane.columnIndex="0"
+                   style="-fx-font-size: 16px"/>
+            <Label fx:id="roomCode"
+                          GridPane.rowIndex="0" GridPane.columnIndex="1"
+                          style="-fx-font-size: 16px"/>
+
+            <Label text="Address"
+                   GridPane.rowIndex="1" GridPane.columnIndex="0"
+                   style="-fx-font-size: 16px"/>
+            <Label fx:id="address"
+                       GridPane.rowIndex="1" GridPane.columnIndex="1"
+                       style="-fx-font-size: 16px"/>
+        </GridPane>
+    </HBox>
+
+    <Label fx:id="exit"
+           text="SETUP COMPLETE!!! Please start the app again!"
+           visible="false"/>
+</VBox>

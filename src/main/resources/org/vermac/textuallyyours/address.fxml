@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="org.vermac.textuallyyours.AddressController"
+           fx:id="window" >
+    <padding>
+        <Insets right="20" left="20" bottom="20" top="20"/>
+    </padding>
+
+    <!-- Background image -->
+    <ImageView opacity="0.05" preserveRatio="true">
+        <Image url="@/bg.png"/>
+    </ImageView>
+
+    <VBox alignment="CENTER">
+        <HBox alignment="TOP_CENTER">
+            <padding>
+                <Insets right="20" left="20" bottom="10" top="20"/>
+            </padding>
+            <TextField fx:id="address" alignment="CENTER"
+                       promptText="New Address" style="
+                           -fx-control-inner-background: #d197d1;
+                           -fx-prompt-text-fill: #333333;
+                           -fx-text-fill: #000000;
+                           -fx-border-radius: 10px;
+                           -fx-background-radius: 10px;
+                           -fx-background-color: transparent;
+                           -fx-border-width: 2px;
+                           -fx-border-color: #000000;
+                           -fx-padding: 5px 10px;
+                           -fx-font-size: 16px;
+                           -fx-font-family: Monaco, 'Courier New', monospace;
+                            " minWidth="200"/>
+        </HBox>
+        <HBox alignment="CENTER">
+            <padding>
+                <Insets right="20" left="20" bottom="10"/>
+            </padding>
+            <Button text="change address" onAction="#changeAddress"
+                    style="-fx-font-size: 16px;
+                    -fx-text-fill: #000000;
+                    -fx-font-family: Monaco, 'Courier New', monospace;
+                    -fx-background-color: transparent"/>
+        </HBox>
+
+        <HBox alignment="CENTER">
+            <padding>
+                <Insets right="20" left="20"/>
+            </padding>
+            <Label fx:id="displayText" visible="false" wrapText="true"
+                   textAlignment="CENTER" style="-fx-font-size: 16px;
+                    -fx-text-fill: #000000;
+                    -fx-font-family: Monaco, 'Courier New', monospace;
+                    -fx-background-color: transparent"/>
+        </HBox>
+
+    </VBox>
+
+</StackPane>

@@ -1,0 +1,71 @@
+package org.vermac.textuallyyours;
+
+import com.AppState.io.AppStateManager;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.fxml.FXML;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.StackPane;
+
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
+
+public class AddressController {
+    private AppController mainAppController;
+
+    @FXML
+    private StackPane window;
+    @FXML
+    private TextField address;
+    @FXML
+    private Label displayText;
+
+
+    public void initialize(){
+        String savedColor = AppStateManager.fetchProperty("backgroundColor");
+        window.setStyle("-fx-background-color: " + savedColor);
+
+        address.setOnKeyPressed(new EventHandler<KeyEvent>() {
+            @Override
+            public void handle(KeyEvent keyEvent) {
+                displayText.setVisible(false);
+                displayText.setText("");
+            }
+        });
+    }
+
+    public void setMainController(AppController mainAppController){
+        this.mainAppController = mainAppController;
+    }
+
+    public void changeAddress(ActionEvent event) {
+        String newIP = address.getText().trim();
+        address.clear();
+
+        if (!newIP.isEmpty()) {
+            int port = Integer.parseInt(AppStateManager.fetchProperty("roomKey"));
+
+            displayText.setText("Trying to connect...");
+            displayText.setVisible(true);
+
+            try {
+
+                Socket socket = new Socket(InetAddress.getByName(newIP),port);
+
+                displayText.setVisible(true);
+                displayText.setText("Connectd to user! Please close the app " +
+                        "and open it again!");
+
+                AppStateManager.updateProperty("serverIP", newIP);
+                socket.close();
+                }
+            catch (IOException e) {
+                displayText.setText("Cannot connect to the new address. " +
+                        "Please check the address again");
+            }
+        }
+    }
+}

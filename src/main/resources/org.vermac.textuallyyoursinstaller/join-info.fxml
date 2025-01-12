@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns:fx="http://javafx.com/fxml"
+      fx:controller="org.vermac.textuallyyoursinstaller.JoinInfo"
+      spacing="10" alignment="CENTER">
+    <padding>
+        <Insets right="20" left="20" top="20" bottom="20"/>
+    </padding>
+
+    <HBox spacing="10" alignment="CENTER">
+        <padding>
+            <Insets right="20" left="20" top="20" bottom="20"/>
+        </padding>
+
+        <GridPane hgap="20" vgap="20" alignment="CENTER">
+            <columnConstraints>
+                <ColumnConstraints hgrow="ALWAYS" minWidth="100"/>
+                <ColumnConstraints minWidth="250"/>
+            </columnConstraints>
+
+            <!-- Room Code -->
+            <Label text="Room code: "
+                   GridPane.rowIndex="0" GridPane.columnIndex="0"
+                   style="-fx-font-size: 16px"/>
+            <TextField fx:id="roomCode" promptText="Room Code"
+                       GridPane.rowIndex="0" GridPane.columnIndex="1"
+                       style="-fx-font-size: 16px"/>
+
+            <!-- Address -->
+            <Label text="Address"
+                   GridPane.rowIndex="1" GridPane.columnIndex="0"
+                   style="-fx-font-size: 16px"/>
+            <TextField fx:id="address" promptText="Address"
+                   GridPane.rowIndex="1" GridPane.columnIndex="1"
+                   style="-fx-font-size: 16px"/>
+
+            <!-- Button for Join Action -->
+            <HBox spacing="10" alignment="CENTER" GridPane.rowIndex="2" GridPane.columnSpan="2">
+                <Button text="Join Room" onAction="#joinRoom"
+                        style="-fx-font-size: 16px; min-width: 120px;"/>
+            </HBox>
+        </GridPane>
+    </HBox>
+
+    <Label fx:id="exit"
+           text="SETUP COMPLETE!!! Please start the app again!"
+           visible="false"/>
+</VBox>

@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.Region?>
+<StackPane xmlns:fx="http://javafx.com/fxml"
+           fx:controller="org.vermac.textuallyyours.AppController"
+           fx:id="window">
+  <!-- Background image -->
+  <ImageView opacity="0.05" preserveRatio="true">
+    <Image url="@/bg.png"/>
+  </ImageView>
+
+  <BorderPane fx:id="chatScreen" visible="false">
+    <padding>
+      <Insets top="10" left="10" right="10"/>
+    </padding>
+
+    <top>
+      <!-- Settings -->
+      <HBox>
+        <padding>
+          <Insets bottom="20"/>
+        </padding>
+        <Button style="-fx-background-color: transparent;"
+                onMouseClicked="#handleSettings">
+
+          <graphic>
+            <ImageView fitWidth="30" fitHeight="30">
+              <Image url="@/setting.png"/>
+            </ImageView>
+          </graphic>
+
+        </Button>
+      </HBox>
+    </top>
+
+    <center>
+      <!-- Chatting Screen -->
+      <ScrollPane fx:id="scrollPane"
+              style="-fx-background: transparent; -fx-background-color: transparent;"
+      hbarPolicy="NEVER" fitToWidth="true" pannable="true">
+        <VBox fx:id="container" spacing="10" alignment="TOP_CENTER">
+          <padding>
+            <Insets right="8" left="8"/>
+          </padding>
+        </VBox>
+
+        <padding>
+          <Insets bottom="10"/>
+        </padding>
+      </ScrollPane>
+    </center>
+
+    <bottom>
+
+      <!-- Dynamic Typing Label -->
+      <VBox spacing="10">
+        <padding>
+          <Insets bottom="10" left="10"/>
+        </padding>
+        <Label fx:id="dynamicLabel" style="
+        -fx-background-color: transparent;
+        -fx-border-radius: 20px;
+        -fx-border-width: 2px;
+        -fx-border-color: #000000;
+        -fx-font-size: 16px;
+        -fx-text-fill: #000000;
+        -fx-font-family: Monaco, 'Courier New', monospace;" wrapText="true"
+               maxWidth="400" opacity="0">
+          <padding>
+            <Insets left="10" right="10" top="2" bottom="2"/>
+          </padding>
+        </Label>
+
+        <GridPane hgap="10" alignment="CENTER">
+          <padding>
+            <Insets bottom="10"/>
+          </padding>
+          <columnConstraints>
+            <ColumnConstraints percentWidth="10"/>
+            <ColumnConstraints percentWidth="80"/>
+            <ColumnConstraints percentWidth="10"/>
+          </columnConstraints>
+
+          <TextField fx:id="message" onAction="#handleText"
+                     style="
+                           -fx-control-inner-background: #d197d1;
+                           -fx-prompt-text-fill: #333333;
+                           -fx-text-fill: #000000;
+                           -fx-border-radius: 15px;
+                           -fx-background-radius: 15px;
+                           -fx-background-color: transparent;
+                           -fx-border-width: 2px;
+                           -fx-border-color: #000000;
+                           -fx-padding: 10px 15px;
+                           -fx-font-size: 17px;
+                           -fx-font-family: Monaco, 'Courier New', monospace;
+                               "
+                     promptText="Enter message"
+                     GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+        </GridPane>
+      </VBox>
+
+    </bottom>
+
+  </BorderPane>
+
+  <!-- Waiting Screen -->
+  <VBox fx:id="waitingScreen" alignment="CENTER" spacing="20" visible="false">
+    <Label text="Waiting for user to join..."
+           style="-fx-font-size: 24px;
+           -fx-text-fill: #000000;
+           -fx-font-family: Monaco, 'Courier New', monospace"/>
+  </VBox>
+
+  <!-- Exit Screen -->
+  <VBox fx:id="exitScreen" alignment="CENTER" visible="false" spacing="20">
+    <Label text="User has left the chat :("
+           style="-fx-font-size: 24px;
+           -fx-text-fill: #000000;
+           -fx-font-family: Monaco, 'Courier New', monospace"/>
+    <Label text="Disconnecting in 5 seconds"
+           style="-fx-font-size: 24px;
+           -fx-text-fill: #000000;
+           -fx-font-family: Monaco, 'Courier New', monospace"/>
+  </VBox>
+
+  <!-- Not-Installed Screen -->
+  <VBox fx:id="notInstalledScreen" alignment="CENTER" visible="false">
+    <Label text="App files were not properly installed. Please complete the installation"
+           style="-fx-font-size: 24px;
+           -fx-text-fill: #000000;
+           -fx-font-family: Monaco, 'Courier New', monospace"
+           wrapText="true" textAlignment="CENTER"/>
+  </VBox>
+
+  <!-- Change address button -->
+  <VBox alignment="BASELINE_LEFT">
+    <Region VBox.Vgrow="ALWAYS"/>
+
+    <padding>
+      <Insets right="20" left="20" bottom="20"/>
+    </padding>
+
+    <Button fx:id="changeBtn" visible="true" text="Change Address"
+            onAction="#handleAddress"
+            style="-fx-font-size: 16px;
+           -fx-text-fill: #000000;
+           -fx-font-family: Monaco, 'Courier New', monospace;
+           -fx-background-color: transparent"/>
+  </VBox>
+
+</StackPane>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="org.vermac.textuallyyours.SettingsController"
+      style="-fx-background-color: #f2f2f2" spacing="20">
+    <padding>
+        <Insets right="20" left="20" bottom="20" top="20"/>
+    </padding>
+
+    <HBox alignment="CENTER_LEFT" spacing="20">
+        <!-- Background Color Selection -->
+        <Label text="Background Color" minWidth="200"
+               style="-fx-text-fill: #000000; -fx-font-family: Monaco, 'Courier New', monospace;"/>
+        <ColorPicker fx:id="color"/>
+    </HBox>
+
+    <!-- Dynamic Typing Selection -->
+    <HBox alignment="CENTER_LEFT" spacing="20">
+        <Label text="Dynamic Typing"
+               minWidth="200"
+               style="-fx-text-fill: #000000; -fx-font-family: Monaco, 'Courier New', monospace;"/>
+        <RadioButton fx:id="dynamicTypingEnabled" text="enabled"/>
+    </HBox>
+
+    <Region VBox.vgrow="ALWAYS"/>
+
+    <!-- Save/ Reset buttons -->
+    <HBox alignment="BASELINE_RIGHT" spacing="10">
+        <Button text="Save" onAction="#saveSettings"
+                style="-fx-text-size: 16px; -fx-font-family: Monaco, 'Courier New', monospace;"/>
+        <Button text="Reset" onAction="#resetSettings"
+                style="-fx-text-size: 16px; -fx-font-family: Monaco, 'Courier New', monospace;"/>
+    </HBox>
+</VBox>

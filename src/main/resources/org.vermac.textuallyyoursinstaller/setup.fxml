@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<!--
+    FXML Layout for the "Textually Yours Installer" Application GUI
+
+    This FXML file defines the graphical user interface (GUI) layout for the installation process.
+    The layout is primarily composed of labels, text fields, buttons, and layout containers, organized in a
+    VBox and HBox structure for proper alignment and spacing.
+
+    The controller class "org.vermac.textuallyyoursinstaller.InstallerController" is responsible for handling the user interactions.
+-->
+
+<VBox xmlns:fx="http://javafx.com/fxml" fx:controller="org.vermac.textuallyyoursinstaller.InstallerController"
+      spacing="10" alignment="CENTER" fx:id="root">
+
+    <!--
+        Padding for the VBox layout to create space around the edges of the container.
+    -->
+    <padding>
+        <Insets right="20" left="20" top="20" bottom="20"/>
+    </padding>
+
+    <!--
+        VBox that holds the initial form and instructions for the user. Initially hidden.
+        Contains a description and form elements for entering a username and email.
+    -->
+    <VBox fx:id="init">
+
+        <!--
+            Label displaying instructions for selecting either 'CREATE' or 'JOIN'.
+            Wrap text to allow for multi-line text.
+        -->
+        <Label
+                text="Please be aware that you can only select one option:- 'CREATE' or 'JOIN'. To ensure effective communication, kindly inform the other user to choose the option you did not select."
+                wrapText="true"
+                style="-fx-font-size: 16px"/>
+
+        <!--
+            HBox to group and align the input form and provide padding around the form.
+        -->
+        <HBox spacing="10" alignment="CENTER">
+            <padding>
+                <Insets right="20" left="20" top="20" bottom="20"/>
+            </padding>
+
+            <!--
+                GridPane to lay out the form with rows and columns for username
+                and email inputs.
+                It includes labels and text fields for user input.
+            -->
+            <GridPane hgap="20" vgap="20">
+                <columnConstraints>
+                    <ColumnConstraints/>
+                    <ColumnConstraints minWidth="250"/>
+                </columnConstraints>
+
+                <!--
+                    Label and TextField for entering the username.
+                -->
+                <Label text="Enter username:"
+                       GridPane.rowIndex="0" GridPane.columnIndex="0"
+                       style="-fx-font-size: 16px"/>
+                <TextField fx:id="username" promptText="username"
+                           GridPane.rowIndex="0" GridPane.columnIndex="1"
+                           style="-fx-font-size: 16px"/>
+
+                <!--
+                    Label and TextField for entering the email of the other person.
+                -->
+                <Label text="Enter email of other person:"
+                       GridPane.rowIndex="1" GridPane.columnIndex="0"
+                       style="-fx-font-size: 16px"/>
+                <TextField fx:id="email" promptText="example@gmail.com"
+                           GridPane.rowIndex="1" GridPane.columnIndex="1"
+                           style="-fx-font-size: 16px"/>
+            </GridPane>
+
+        </HBox>
+
+        <!--
+            HBox containing two buttons ('Create' and 'Join') for selecting the mode of installation.
+            The onAction events are linked to methods in the controller to handle the user's choice.
+        -->
+        <HBox spacing="10" alignment="CENTER">
+            <Button text="Create" fx:id="createButton" minWidth="60"
+                    onAction="#showCreateForm"/>
+            <Button text="Join" fx:id="joinButton" minWidth="60"
+                    onAction="#showJoinForm"/>
+        </HBox>
+    </VBox>
+
+</VBox>
