@@ -37,6 +37,9 @@ public class AppController {
     private Socket socket;
     private boolean hasSentNotification = false;
 
+    public Button confirm = new Button("I'd love to!");
+    public Button deny = new Button("Some other time");
+
     // FXML resources
     @FXML
     public StackPane window;
@@ -161,7 +164,7 @@ public class AppController {
         fxmlLoader.setLocation(getClass().getResource("event.fxml"));
 
         try {
-            Scene scene = new Scene(fxmlLoader.load(), 550, 400);
+            Scene scene = new Scene(fxmlLoader.load(), 550, 350);
             Stage stage = new Stage();
 
             EventController eventController = fxmlLoader.getController();
@@ -220,6 +223,11 @@ public class AppController {
     // Method to update dynamic typing visibility
     public void updateDynamicTyping(boolean isEnabled) {
         dynamicLabel.setVisible(isEnabled);
+    }
+
+    public void askUpdateUserBackground() {
+        String color = AppStateManager.fetchProperty("backgroundColor");
+        output.println("BG_CHANGE: " + color);
     }
 
 
@@ -348,24 +356,61 @@ public class AppController {
                         } else if (text.startsWith("EVENT: ")) {
                             // Handle event messages
                             String eventMessage = text.substring(7);  // Strip "EVENT: " prefix
-                            String[] eventDetails = eventMessage.split(" ", 3); // Split into event name, description, and date
+                            String[] eventDetails = eventMessage.split(" ", 2); // Split into event name, description, and date
+                            String eventName = eventDetails[0];
+                            ZonedDateTime eventDate =
+                                    ZonedDateTime.parse(eventDetails[1]);
 
-                            if (eventDetails.length == 3) {
-                                String eventName = eventDetails[0];
-                                String description = eventDetails[1];
-                                ZonedDateTime eventDate = ZonedDateTime.parse(eventDetails[2]);
+                            Platform.runLater(() -> {
+                                addMessageToContainer(
+                                        "Event: " + eventName + "\n" +
+                                                "Date: " + eventDate,
+                                        false, true);  // Display as event message
+                            });
+                        } else if (text.startsWith("BG_CHANGE: ")) {
+                            String color = text.substring(10); // Extract color
+                            Platform.runLater(() -> {
+                                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                                String otherUser =
+                                        AppStateManager.fetchProperty(
+                                                "otherUser");
 
-                                Platform.runLater(() -> {
-                                    addMessageToContainer(
-                                            "Event: " + eventName + "\n" +
-                                                    "Description: " + description + "\n" +
-                                                    "Date: " + eventDate,
-                                            false, true);  // Display as event message
+                                alert.setTitle("Background Change Request");
+                                alert.setHeaderText(otherUser + " " +
+                                        "has requested a " +
+                                        "background" +
+                                        " change.");
+                                alert.setContentText("Allow " + otherUser +
+                                        " to change background?");
+
+                                ButtonType yesButton = new ButtonType("Yes");
+                                ButtonType noButton = new ButtonType("No");
+                                alert.getButtonTypes().setAll(yesButton, noButton);
+
+                                // Handle response
+                                alert.showAndWait().ifPresent(response -> {
+                                    if (response == yesButton) {
+                                        output.println("BG_RESP: YES");
+                                        AppStateManager.updateProperty("allowUser", "true");
+                                        AppStateManager.updateProperty("backgroundColor", color);
+                                        applySettings(); // Apply the new background
+                                    } else {
+                                        output.println("BG_RESP: NO");
+                                        AppStateManager.updateProperty("allowUser", "false");
+                                    }
                                 });
+                            });
+                        } else if (text.startsWith("BG_RESP: ")) {
+                            String response = text.substring(9);
+                            if (response.equals("YES")) {
+                                AppStateManager.updateProperty("allowUser", "true");
+                                applySettings();
+                            } else {
+                                AppStateManager.updateProperty("allowUser", "false");
                             }
                         } else {
                             // Handle normal chat messages
-                            String finalText = text;
+                            String finalText = text.substring(7);
                             Platform.runLater(() ->
                                     addMessageToContainer(finalText, false, false));
 
@@ -396,7 +441,7 @@ public class AppController {
             try {
                 String text = message.getText();
                 if (text != null) {
-                    output.println(text);
+                    output.println("NORMAL: " + text);
                 }
             } catch (Exception e) {
                 System.out.println("Error sending message: " + e.getMessage());
@@ -404,37 +449,42 @@ public class AppController {
         });
     }
 
-    public void sendEventInvite(String eventName, String description,
-                                ZonedDateTime zonedDateTime) {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("hh:mm a");
-        String message = "EVENT: %s %s %s".formatted(eventName, description,
-                dtf.format(zonedDateTime));
+    public void sendEventInvite(String eventName, ZonedDateTime zonedDateTime) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("d MMMM, hh:mm a");
+        String message = "EVENT: \n" + "You are planning an event!!\n" +
+                "name: " + eventName + "\ntime: " + dtf.format(zonedDateTime);
+
 //        output.println(message);
-        addMessageToContainer(message, true, false);
+        addMessageToContainer(message.substring(8), true, true);
     }
 
     private void addMessageToContainer(String messageText, boolean isSent, boolean isEvent) {
         // Label for the message text
         Label messageLabel = new Label(messageText);
         messageLabel.setWrapText(true);
-        messageLabel.setMaxWidth(400);
+        messageLabel.setMaxWidth(450);
         messageLabel.setOpacity(0.85);
 
         // HBox to hold the message
         HBox hbox = new HBox();
         hbox.setSpacing(10);
 
-        // If the message is an event, style it differently
         if (isEvent) {
-            System.out.println("here");
-            messageLabel.setStyle("-fx-background-color: #FFEB3B; " + // yellow background for events
+            messageLabel.setStyle("-fx-background-color: #eded98; " +
                     "-fx-padding: 15px; " +
                     "-fx-border-radius: 15px;" +
+                    "-fx-background-radius: 15px;" +
                     "-fx-border-width: 2px;" +
                     "-fx-border-color: #FF9800;" +
                     "-fx-font-size: 16px;" +
                     "-fx-text-fill: #000000;" +
                     "-fx-font-family: Monaco, 'Courier New', monospace;");
+            if (isSent) {
+                String otherUser = AppStateManager.fetchProperty(
+                        "otherUser");
+                messageLabel.setText(messageLabel.getText() + "\n\nWaiting " +
+                        "for " + otherUser + "'s response...");
+            }
         } else {
             messageLabel.setStyle("-fx-background-color: transparent; " +
                     "-fx-padding: 10px; " +

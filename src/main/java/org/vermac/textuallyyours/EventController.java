@@ -3,35 +3,33 @@ package org.vermac.textuallyyours;
 import com.AppState.io.AppStateManager;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.DatePicker;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.Node;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
 
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.TimeZone;
 
 public class EventController {
     private AppController appController;
     private static final DateTimeFormatter timeFormatter =
-            DateTimeFormatter.ofPattern("hh:mm a");
+            DateTimeFormatter.ofPattern("h:mm a");
 
     @FXML
-    private VBox root;
+    private StackPane root;
     @FXML
     private ImageView bgImage;
     @FXML
-    public TextField eventName;
+    private TextField eventName;
     @FXML
-    public TextArea description;
+    private DatePicker date;
     @FXML
-    public DatePicker date;
+    private TextField time;
     @FXML
-    public TextField time;
+    private Button send;
 
     public void initialize() {
         String color = AppStateManager.fetchProperty("backgroundColor");
@@ -42,13 +40,15 @@ public class EventController {
         this.appController = appController;
     }
 
-    public void sendInvite() {
+    public void sendInvite(ActionEvent event) {
         if (isValid()) {
             // Send event invite with ZonedDateTime
-            System.out.println(date.getValue().toString());
-            System.out.println(time.getText());
             ZonedDateTime zonedDateTime = createZonedDateTime(date.getValue().toString(), time.getText());
-            appController.sendEventInvite(eventName.getText(), description.getText(), zonedDateTime);
+            appController.sendEventInvite(eventName.getText(), zonedDateTime);
+
+            Stage currentStage =
+                    (Stage) ((Node) event.getSource()).getScene().getWindow();
+            currentStage.close();
         } else {
             showValidationAlert();
         }
@@ -61,7 +61,6 @@ public class EventController {
     public boolean isValid() {
         // Check if event name, description, and time fields are not empty
         if (eventName.getText().trim().isEmpty() ||
-                description.getText().trim().isEmpty() ||
                 time.getText().trim().isEmpty()) {
             return false;
         }
@@ -74,7 +73,7 @@ public class EventController {
         // Validate time format (e.g., "6:00 PM")
         try {
             // Try parsing the time
-            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mm a");
+            DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("h:mm a");
             timeFormatter.parse(time.getText());
         } catch (DateTimeParseException e) {
             return false;

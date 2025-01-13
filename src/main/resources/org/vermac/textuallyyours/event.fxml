@@ -3,71 +3,68 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
 
-<VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="org.vermac.textuallyyours.EventController"
-      spacing="20" fx:id="root">
-    <padding>
-        <Insets right="10" left="10" bottom="15" top="15"/>
-    </padding>
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="org.vermac.textuallyyours.EventController"
+           fx:id="root">
 
-    <VBox alignment="CENTER" spacing="25">
+    <!-- Background Image -->
+    <ImageView opacity="0.1">
+        <Image url="@/bg.png"/>
+    </ImageView>
+
+    <!-- Main Content -->
+    <VBox spacing="20" alignment="CENTER">
         <padding>
-            <Insets right="10" left="10"/>
+            <Insets right="10" left="10" bottom="15" top="15"/>
         </padding>
 
         <!-- Name of Event -->
         <HBox spacing="20" alignment="CENTER_LEFT">
-            <Label text="Name of Event" style="
-                -fx-font-size: 14px;
+            <Label text="What are we doing?" style="
+                -fx-font-size: 16px;
                 -fx-text-fill: #000000;
                 -fx-font-family: Monaco, 'Courier New', monospace;"
                    prefWidth="175"/>
 
-            <TextField fx:id="eventName" promptText="name" style="
+            <TextField fx:id="eventName" promptText="event" style="
                 -fx-prompt-text-fill: #696969;
                 -fx-background-color: transparent;
                 -fx-border-radius: 10px;
                 -fx-border-width: 2px;
                 -fx-border-color: #000000;
-                -fx-font-size: 14px;
+                -fx-font-size: 16px;
                 -fx-text-fill: #000000;
                 -fx-font-family: Monaco, 'Courier New', monospace;"
                        prefWidth="250"/>
         </HBox>
 
-        <!-- Event Description -->
-        <HBox spacing="20">
-            <Label text="Description" style="
-                -fx-font-size: 14px;
-                -fx-text-fill: #000000;
-                -fx-font-family: Monaco, 'Courier New', monospace;"
-                   prefWidth="175"/>
-            <TextArea fx:id="description" style="
-                -fx-font-size: 14px;
-                -fx-border-radius: 5px;
-                -fx-text-fill: #000000;
-                -fx-font-family: Monaco, 'Courier New', monospace;"
-                      prefWidth="250" prefHeight="80" wrapText="true"/>
-        </HBox>
-
         <!-- Date -->
-        <HBox spacing="20">
-            <Label text="Date" style="
-                -fx-font-size: 14px;
+        <HBox spacing="20" alignment="CENTER_LEFT">
+            <Label text="When?" style="
+                -fx-font-size: 16px;
                 -fx-text-fill: #000000;
                 -fx-font-family: Monaco, 'Courier New', monospace;"
                    prefWidth="175"/>
             <DatePicker fx:id="date" style="
-                -fx-font-size: 14px; -fx-text-fill: #000000;
-                -fx-font-family: Monaco, 'Courier New', monospace;"/>
+                -fx-font-size: 16px;
+                -fx-text-fill: #000000;
+                -fx-background-color: transparent;
+                -fx-font-family: Monaco, 'Courier New', monospace;
+                -fx-prompt-text-fill: #696969;">
+                <padding>
+                    <Insets top="5" right="5" bottom="5" left="5"/>
+                </padding>
+            </DatePicker>
         </HBox>
 
         <!-- Time -->
         <HBox spacing="20" alignment="CENTER_LEFT">
             <Label text="Time (eg: 6:00 pm)" style="
-                -fx-font-size: 14px;
+                -fx-font-size: 16px;
                 -fx-text-fill: #000000;
                 -fx-font-family: Monaco, 'Courier New', monospace;"
                    prefWidth="175"/>
@@ -77,17 +74,25 @@
                 -fx-border-radius: 10px;
                 -fx-border-width: 2px;
                 -fx-border-color: #000000;
-                -fx-font-size: 14px;
+                -fx-font-size: 16px;
                 -fx-text-fill: #000000;
                 -fx-font-family: Monaco, 'Courier New', monospace;"
                        prefWidth="250"/>
         </HBox>
 
         <Region VBox.vgrow="ALWAYS"/>
-        <Button alignment="BASELINE_CENTER" text="Let's Do This!"
-                onAction="#sendInvite" style="
-            -fx-font-size: 14px;
+
+        <!-- Submit Button -->
+        <VBox alignment="BOTTOM_CENTER">
+            <Button fx:id="send" alignment="BOTTOM_CENTER" text="Let's Do This!"
+                    onAction="#sendInvite" style="
+            -fx-font-size: 16px;
             -fx-text-fill: #000000;
+            -fx-border-radius: 10px;
+            -fx-border-width: 2px;
+            -fx-border-color: #000000;
+            -fx-background-color: transparent;
             -fx-font-family: Monaco, 'Courier New', monospace;"/>
+        </VBox>
     </VBox>
-</VBox>
+</StackPane>

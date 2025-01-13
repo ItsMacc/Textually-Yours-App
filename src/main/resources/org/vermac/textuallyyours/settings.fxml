@@ -15,16 +15,31 @@
     <HBox alignment="CENTER_LEFT" spacing="20">
         <!-- Background Color Selection -->
         <Label text="Background Color" minWidth="200"
-               style="-fx-text-fill: #000000; -fx-font-family: Monaco, 'Courier New', monospace;"/>
-        <ColorPicker fx:id="color"/>
+               style="-fx-text-fill: #000000;
+               -fx-font-size: 16px;
+               -fx-font-family: Monaco, 'Courier New', monospace;"/>
+        <ColorPicker fx:id="color" style="-fx-font-size: 14px"/>
     </HBox>
 
     <!-- Dynamic Typing Selection -->
     <HBox alignment="CENTER_LEFT" spacing="20">
         <Label text="Dynamic Typing"
                minWidth="200"
-               style="-fx-text-fill: #000000; -fx-font-family: Monaco, 'Courier New', monospace;"/>
-        <RadioButton fx:id="dynamicTypingEnabled" text="enabled"/>
+               style="-fx-text-fill: #000000;
+                -fx-font-size: 14px;
+                -fx-font-family: Monaco, 'Courier New', monospace;"/>
+        <RadioButton fx:id="dynamicTypingEnabled" text="enabled"
+                     style="-fx-font-size: 14px"/>
+    </HBox>
+
+    <HBox alignment="CENTER_LEFT" spacing="20">
+        <Label fx:id="allowLabel"
+               minWidth="200"
+               style="-fx-text-fill: #000000;
+                -fx-font-size: 14px;
+                -fx-font-family: Monaco, 'Courier New', monospace;"/>
+        <RadioButton fx:id="allowUser" text="allowed"
+                     style="-fx-font-size: 14px"/>
     </HBox>
 
     <Region VBox.vgrow="ALWAYS"/>
@@ -32,8 +47,8 @@
     <!-- Save/ Reset buttons -->
     <HBox alignment="BASELINE_RIGHT" spacing="10">
         <Button text="Save" onAction="#saveSettings"
-                style="-fx-text-size: 16px; -fx-font-family: Monaco, 'Courier New', monospace;"/>
+                style="-fx-text-size: 14px; -fx-font-family: Monaco, 'Courier New', monospace;"/>
         <Button text="Reset" onAction="#resetSettings"
-                style="-fx-text-size: 16px; -fx-font-family: Monaco, 'Courier New', monospace;"/>
+                style="-fx-text-size: 14px; -fx-font-family: Monaco, 'Courier New', monospace;"/>
     </HBox>
 </VBox>

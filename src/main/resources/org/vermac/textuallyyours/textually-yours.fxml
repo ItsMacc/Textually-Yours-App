@@ -19,7 +19,7 @@
            fx:controller="org.vermac.textuallyyours.AppController"
            fx:id="window">
   <!-- Background image -->
-  <ImageView opacity="0.2" preserveRatio="true">
+  <ImageView opacity="0.1" preserveRatio="true">
     <Image url="@/bg.png"/>
   </ImageView>
 
