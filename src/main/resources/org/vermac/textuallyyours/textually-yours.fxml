@@ -148,14 +148,14 @@
   </VBox>
 
   <!-- Change address button -->
-  <VBox alignment="BASELINE_LEFT">
+  <VBox fx:id="addressScreen" alignment="BASELINE_LEFT">
     <Region VBox.Vgrow="ALWAYS"/>
 
     <padding>
       <Insets right="20" left="20" bottom="20"/>
     </padding>
 
-    <Button fx:id="changeBtn" visible="true" text="Change Address"
+    <Button fx:id="changeBtn" visible="false" text="Change Address"
             onAction="#handleAddress"
             style="-fx-font-size: 16px;
            -fx-text-fill: #000000;

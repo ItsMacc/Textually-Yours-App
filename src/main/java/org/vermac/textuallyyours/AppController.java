@@ -2,7 +2,6 @@ package org.vermac.textuallyyours;
 
 import com.AppState.io.AppStateManager;
 import com.AppState.io.util.Message;
-import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -16,9 +15,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import notification.NotificationSender;
-import org.vermac.textuallyyoursinstaller.InstallerApplication;
-import org.vermac.textuallyyoursinstaller.InstallerController;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -53,6 +49,8 @@ public class AppController {
     @FXML
     private VBox notInstalledScreen;
     @FXML
+    private VBox addressScreen;
+    @FXML
     private TextField message;
     @FXML
     private VBox container;
@@ -70,6 +68,7 @@ public class AppController {
             // Initialize the app and apply saved/default settings
             AppStateManager.initializeApp();
             applySettings();
+
             showWaitingScreen();
 
             int port =
@@ -412,9 +411,8 @@ public class AppController {
     private void showChatScreen() {
         Platform.runLater(() -> {
             waitingScreen.setVisible(false);  // Hide waiting screen
-            changeBtn.setVisible(false);      // Hide change address button
+            notInstalledScreen.setVisible(false); // Hide not installed screen
             chatScreen.setVisible(true);      // Show chat screen
-
         });
     }
 
@@ -432,7 +430,9 @@ public class AppController {
     // A method to switch to waiting screen and show change address button
     // for client to change address in case IP of server changes
     private void showWaitingScreen() {
+        addressScreen.setVisible(false); // Hide address screen
         waitingScreen.setVisible(true);
+
         if (AppStateManager.fetchProperty("admin").equals("false")){
             changeBtn.setVisible(true);
         }
