@@ -1,7 +1,6 @@
 package org.vermac.textuallyyours;
 
 import com.AppState.io.AppStateManager;
-import com.AppState.io.util.Message;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -20,8 +19,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.*;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -63,50 +63,55 @@ public class AppController {
 
     // Start the application
     public void initialize() {
-        if (AppStateManager.fetchProperty("initialised").equals("true")) {
+        AppStateManager.initializeApp();
+        applySettings();
 
-            // Initialize the app and apply saved/default settings
-            AppStateManager.initializeApp();
-            applySettings();
-
-            showWaitingScreen();
-
-            int port =
-                    Integer.parseInt(AppStateManager.fetchProperty("roomKey"));
-            String IP =
-                    AppStateManager.fetchProperty("serverIP");
-            boolean isAdmin =
-                    Boolean.parseBoolean(AppStateManager.fetchProperty("admin"));
-
-            List<Message> messageList = AppStateManager.loadMessages();
-
-            for (Message m : messageList) {
-                String sender = m.getSender();
-                String content = m.getContent();
-                addMessageToContainer(content, sender.equals(AppStateManager.getUserID()));
-            }
-
-            if (isAdmin) {
-                startServer(port);
-            } else {
-                startClientConnection(IP, port);
-            }
-
-            // Listen for messages to display dynamically
-            message.textProperty().addListener((observableValue,
-                                                oldValue,
-                                                newValue) -> {
-                if (!newValue.trim().isEmpty()) {
-                    output.println("TYPING: " + newValue);
-                } else {
-                    output.println("STOP");
-                }
-            });
-        }
-        else {
-            window.setStyle("-fx-background-color: #a459cd");
-            notInstalledScreen.setVisible(true);
-        }
+        showWaitingScreen();
+        showChatScreen();
+//        if (AppStateManager.fetchProperty("initialised").equals("true")) {
+//
+//            // Initialize the app and apply saved/default settings
+//            AppStateManager.initializeApp();
+//            applySettings();
+//
+//            showWaitingScreen();
+//
+//            int port =
+//                    Integer.parseInt(AppStateManager.fetchProperty("roomKey"));
+//            String IP =
+//                    AppStateManager.fetchProperty("serverIP");
+//            boolean isAdmin =
+//                    Boolean.parseBoolean(AppStateManager.fetchProperty("admin"));
+//
+//            List<Message> messageList = AppStateManager.loadMessages();
+//
+//            for (Message m : messageList) {
+//                String sender = m.getSender();
+//                String content = m.getContent();
+//                addMessageToContainer(content, sender.equals(AppStateManager.getUserID()));
+//            }
+//
+//            if (isAdmin) {
+//                startServer(port);
+//            } else {
+//                startClientConnection(IP, port);
+//            }
+//
+//            // Listen for messages to display dynamically
+//            message.textProperty().addListener((observableValue,
+//                                                oldValue,
+//                                                newValue) -> {
+//                if (!newValue.trim().isEmpty()) {
+//                    output.println("TYPING: " + newValue);
+//                } else {
+//                    output.println("STOP");
+//                }
+//            });
+//        }
+//        else {
+//            window.setStyle("-fx-background-color: #a459cd");
+//            notInstalledScreen.setVisible(true);
+//        }
     }
 
     // Handle the text message by adding it to the screen
@@ -117,7 +122,7 @@ public class AppController {
                     AppStateManager.getUserID(),
                     AppStateManager.fetchProperty("otherUserID"),
                     message.getText());
-            addMessageToContainer(message.getText(), true);
+            addMessageToContainer(message.getText(), true, false);
             message.clear();
         }
     }
@@ -149,6 +154,28 @@ public class AppController {
 
         window.setStyle("-fx-background-color: " + savedColor);
         dynamicLabel.setVisible(dynamicTyping);
+    }
+
+    public void handleEvent() {
+        FXMLLoader fxmlLoader = new FXMLLoader();
+        fxmlLoader.setLocation(getClass().getResource("event.fxml"));
+
+        try {
+            Scene scene = new Scene(fxmlLoader.load(), 550, 400);
+            Stage stage = new Stage();
+
+            EventController eventController = fxmlLoader.getController();
+            eventController.setMainController(this);
+
+            stage.setTitle("Plan An Event");
+            stage.setScene(scene);
+            stage.setResizable(false);
+            stage.show();
+
+            stage.setOnCloseRequest(windowEvent -> applySettings());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void handleAddress(){
@@ -297,7 +324,7 @@ public class AppController {
         }
     }
 
-    // Start reading incoming messages in a separate thread
+    // Start reading thread
     public void startReadingThread() {
         startTask(() -> {
             try {
@@ -306,20 +333,41 @@ public class AppController {
                     text = input.readLine();
                     if (text != null) {
                         if (text.startsWith("TYPING: ")) {
+                            // Handle typing notifications
                             String finalText1 = text;
                             Platform.runLater(() -> {
                                 dynamicLabel.setOpacity(1);
                                 dynamicLabel.setText(finalText1);
                             });
                         } else if (text.equals("STOP")) {
+                            // Handle stop typing notifications
                             Platform.runLater(() -> {
                                 dynamicLabel.setOpacity(0);
                                 dynamicLabel.setText("");
                             });
+                        } else if (text.startsWith("EVENT: ")) {
+                            // Handle event messages
+                            String eventMessage = text.substring(7);  // Strip "EVENT: " prefix
+                            String[] eventDetails = eventMessage.split(" ", 3); // Split into event name, description, and date
+
+                            if (eventDetails.length == 3) {
+                                String eventName = eventDetails[0];
+                                String description = eventDetails[1];
+                                ZonedDateTime eventDate = ZonedDateTime.parse(eventDetails[2]);
+
+                                Platform.runLater(() -> {
+                                    addMessageToContainer(
+                                            "Event: " + eventName + "\n" +
+                                                    "Description: " + description + "\n" +
+                                                    "Date: " + eventDate,
+                                            false, true);  // Display as event message
+                                });
+                            }
                         } else {
+                            // Handle normal chat messages
                             String finalText = text;
                             Platform.runLater(() ->
-                                    addMessageToContainer(finalText, false));
+                                    addMessageToContainer(finalText, false, false));
 
                             String otherUserID =
                                     AppStateManager.fetchProperty("otherUserID");
@@ -341,6 +389,7 @@ public class AppController {
         });
     }
 
+
     // Start sending messages in a separate thread
     public void startSendingThread() {
         startTask(() -> {
@@ -355,33 +404,62 @@ public class AppController {
         });
     }
 
-    // Add messages to the display screen (received and sent)
-    private void addMessageToContainer(String messageText, boolean isSent) {
+    public void sendEventInvite(String eventName, String description,
+                                ZonedDateTime zonedDateTime) {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("hh:mm a");
+        String message = "EVENT: %s %s %s".formatted(eventName, description,
+                dtf.format(zonedDateTime));
+//        output.println(message);
+        addMessageToContainer(message, true, false);
+    }
+
+    private void addMessageToContainer(String messageText, boolean isSent, boolean isEvent) {
+        // Label for the message text
         Label messageLabel = new Label(messageText);
-        messageLabel.setStyle("-fx-background-color: transparent; " +
-                "-fx-padding: 10px; " +
-                "-fx-border-radius: 15px;" +
-                "-fx-border-width: 2px;" +
-                "-fx-border-color: #000000;" +
-                "-fx-font-size: 16px;" +
-                "-fx-text-fill: #000000;" +
-                "-fx-font-family: Monaco, 'Courier New', monospace;");
         messageLabel.setWrapText(true);
         messageLabel.setMaxWidth(400);
         messageLabel.setOpacity(0.85);
 
+        // HBox to hold the message
         HBox hbox = new HBox();
         hbox.setSpacing(10);
 
-        // If message was sent, align to right, otherwise left
+        // If the message is an event, style it differently
+        if (isEvent) {
+            System.out.println("here");
+            messageLabel.setStyle("-fx-background-color: #FFEB3B; " + // yellow background for events
+                    "-fx-padding: 15px; " +
+                    "-fx-border-radius: 15px;" +
+                    "-fx-border-width: 2px;" +
+                    "-fx-border-color: #FF9800;" +
+                    "-fx-font-size: 16px;" +
+                    "-fx-text-fill: #000000;" +
+                    "-fx-font-family: Monaco, 'Courier New', monospace;");
+        } else {
+            messageLabel.setStyle("-fx-background-color: transparent; " +
+                    "-fx-padding: 10px; " +
+                    "-fx-border-radius: 15px;" +
+                    "-fx-border-width: 2px;" +
+                    "-fx-border-color: #000000;" +
+                    "-fx-font-size: 16px;" +
+                    "-fx-text-fill: #000000;" +
+                    "-fx-font-family: Monaco, 'Courier New', monospace;");
+        }
+
+        // If the message was sent by the user, align it to the right, otherwise left
         if (isSent) {
             hbox.setAlignment(Pos.CENTER_RIGHT);
         } else {
             hbox.setAlignment(Pos.CENTER_LEFT);
         }
 
+        // Add message label to the HBox
         hbox.getChildren().add(messageLabel);
+
+        // Add the message HBox to the container
         container.getChildren().add(hbox);
+
+        // Bind the scroll pane to always show the latest message
         scrollPane.vvalueProperty().bind(container.heightProperty());
     }
 

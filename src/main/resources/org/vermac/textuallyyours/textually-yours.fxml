@@ -19,7 +19,7 @@
            fx:controller="org.vermac.textuallyyours.AppController"
            fx:id="window">
   <!-- Background image -->
-  <ImageView opacity="0.05" preserveRatio="true">
+  <ImageView opacity="0.2" preserveRatio="true">
     <Image url="@/bg.png"/>
   </ImageView>
 
@@ -30,19 +30,28 @@
 
     <top>
       <!-- Settings -->
-      <HBox>
+      <HBox spacing="20">
+
         <padding>
           <Insets bottom="20"/>
         </padding>
+
         <Button style="-fx-background-color: transparent;"
                 onMouseClicked="#handleSettings">
-
           <graphic>
             <ImageView fitWidth="30" fitHeight="30">
               <Image url="@/setting.png"/>
             </ImageView>
           </graphic>
+        </Button>
 
+        <Button style="-fx-background-color: transparent;"
+                onMouseClicked="#handleEvent">
+          <graphic>
+            <ImageView fitWidth="30" fitHeight="30">
+              <Image url="@/calendar.png"/>
+            </ImageView>
+          </graphic>
         </Button>
       </HBox>
     </top>
