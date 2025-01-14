@@ -32,16 +32,6 @@
                      style="-fx-font-size: 14px"/>
     </HBox>
 
-    <HBox alignment="CENTER_LEFT" spacing="20">
-        <Label fx:id="allowLabel"
-               minWidth="200"
-               style="-fx-text-fill: #000000;
-                -fx-font-size: 14px;
-                -fx-font-family: Monaco, 'Courier New', monospace;"/>
-        <RadioButton fx:id="allowUser" text="allowed"
-                     style="-fx-font-size: 14px"/>
-    </HBox>
-
     <Region VBox.vgrow="ALWAYS"/>
 
     <!-- Save/ Reset buttons -->

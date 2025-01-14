@@ -1,5 +1,7 @@
 package notification;
 
+import com.AppState.io.AppStateManager;
+
 import javax.mail.*;
 import javax.mail.internet.*;
 import java.util.Properties;
@@ -12,11 +14,10 @@ public class NotificationSender {
     private static final String SMTP_PORT = "587";
 
     private static final String DEFAULT_SUBJECT = "Guess Who's Missing You " +
-            "Right Now?";
-    private static final String DEFAULT_BODY = """
-            We don't want to spill the beans, but they can't stop thinking\s
-            about you! Don't keep them waiting...
-           """;
+            "Right Now? \uD83D\uDC95\uD83D\uDC95";
+    private static final String DEFAULT_BODY =
+            "We don't wamt to spill the beans, but %s can't stop thinking about you\n" +
+                    "Don't keep them waiting.\n\n" + "Best,\nTextually Yours";
 
     private static final String ADDRESS_SUBJECT = "Address Update Alert";
 
@@ -27,11 +28,20 @@ public class NotificationSender {
         To ensure uninterrupted service, please verify and update your address to the following:
         """;
 
+    private static final String EVENT_SUBJECT = "Your Special Date is Confirmed! \uD83D\uDC95";
+
+    private static final String EVENT_BODY = "Hello %s\n" + "Great News! Your" +
+            " plans with %s have been confirmed. Here are the details for the " +
+            "event:\nEvent: %s\nTime: %s\nWe hope you both have an " +
+            "unforgettable time together! Remember, moments like these are " +
+            "what makes life special\nBest,\nTextually Yours Team";
+
+
     public static void sendEmail(String recipient) {
         sendEmail(recipient, "default");
     }
 
-    public static void sendEmail(String recipient, String text) {
+    public static void sendEmail(String recipient, String text, String... args) {
         Properties prop = new Properties();
         prop.put("mail.smtp.auth", true);
         prop.put("mail.smtp.starttls.enable", "true");
@@ -47,16 +57,24 @@ public class NotificationSender {
         });
 
         try {
-            String SUBJECT;
-            String BODY;
+            String SUBJECT = "";
+            String BODY = "";
 
-            if (text.equals("default")){
-                SUBJECT = DEFAULT_SUBJECT;
-                BODY = DEFAULT_BODY;
-            } else {
-                SUBJECT = ADDRESS_SUBJECT;
-                BODY = ADDRESS_BODY + "\n" + text + "\n Best Regards," +
-                        "\nTextually Yours Support";
+            switch (text) {
+                case "default" -> {
+                    SUBJECT = DEFAULT_SUBJECT;
+                    BODY = DEFAULT_BODY;
+                }
+                case "address" -> {
+                    SUBJECT = ADDRESS_SUBJECT;
+                    BODY = ADDRESS_BODY + "\n" + text + "\n Best Regards," +
+                            "\nTextually Yours Support";
+                }
+                case "event" -> {
+                    SUBJECT = EVENT_SUBJECT;
+                    BODY = EVENT_BODY.formatted(args[0], args[1],
+                            args[2], args[3]);
+                }
             }
 
             Message message = new MimeMessage(session);
