@@ -111,7 +111,7 @@ public class EventController {
         alert.setHeaderText("Please check your input.");
         alert.setContentText("""
                 Make sure all fields are filled out correctly:
-                - Event name and description cannot be empty.
+                - Event name cannot be empty.
                 - Date must be selected.
                 - Time must be in 'h:mm a' format (e.g., 6:00 pm).""");
 

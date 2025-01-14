@@ -57,7 +57,6 @@
     </top>
 
     <center>
-      <!-- Chatting Screen -->
       <ScrollPane fx:id="scrollPane"
               style="-fx-background: transparent; -fx-background-color: transparent;"
       hbarPolicy="NEVER" fitToWidth="true" pannable="true">
@@ -157,7 +156,7 @@
   </VBox>
 
   <!-- Change address button -->
-  <VBox fx:id="addressScreen" alignment="BASELINE_LEFT">
+  <VBox fx:id="addressScreen" alignment="BASELINE_LEFT" visible="false">
     <Region VBox.Vgrow="ALWAYS"/>
 
     <padding>

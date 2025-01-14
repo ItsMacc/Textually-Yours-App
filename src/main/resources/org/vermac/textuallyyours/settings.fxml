@@ -26,7 +26,7 @@
         <Label text="Dynamic Typing"
                minWidth="200"
                style="-fx-text-fill: #000000;
-                -fx-font-size: 14px;
+                -fx-font-size: 16px;
                 -fx-font-family: Monaco, 'Courier New', monospace;"/>
         <RadioButton fx:id="dynamicTypingEnabled" text="enabled"
                      style="-fx-font-size: 14px"/>

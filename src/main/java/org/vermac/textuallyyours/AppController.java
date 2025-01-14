@@ -31,16 +31,14 @@ import java.util.concurrent.Executors;
 public class AppController {
 
     // Instance variables
-    private static final int WAIT_TIME_MS = 5 * 60 * 1000; // 5 seconds
-    private static final ExecutorService executor =
-            Executors.newCachedThreadPool();
+    private static final int WAIT_TIME_MS = 5 * 60 * 1000; // 5 minutes
+    private static final ExecutorService executor = Executors.newCachedThreadPool();
     private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("d MMMM, hh:mm a");
-
 
     private BufferedReader input;
     private PrintWriter output;
     private Socket socket;
-    private boolean hasSentNotification = true;
+    private boolean hasSentNotification = false;
 
     String roomKey = AppStateManager.fetchProperty("roomKey");
     String initialised = AppStateManager.fetchProperty("initialised");
@@ -53,39 +51,21 @@ public class AppController {
     String savedColor = AppStateManager.fetchProperty("backgroundColor");
 
     // FXML resources
-    @FXML
-    public StackPane window;
-    @FXML
-    private BorderPane chatScreen;
-    @FXML
-    private VBox waitingScreen;
-    @FXML
-    private VBox exitScreen;
-    @FXML
-    private VBox notInstalledScreen;
-    @FXML
-    private VBox addressScreen;
-    @FXML
-    private TextField message;
-    @FXML
-    private VBox container;
-    @FXML
-    private ScrollPane scrollPane;
-    @FXML
-    private Label dynamicLabel;
-    @FXML
-    private Button changeBtn;
+    @FXML public StackPane window;
+    @FXML private BorderPane chatScreen;
+    @FXML private VBox waitingScreen;
+    @FXML private VBox exitScreen;
+    @FXML private VBox notInstalledScreen;
+    @FXML private VBox addressScreen;
+    @FXML private TextField message;
+    @FXML private VBox container;
+    @FXML private ScrollPane scrollPane;
+    @FXML private Label dynamicLabel;
+    @FXML private Button changeBtn;
 
     // Start the application
     public void initialize() {
-//        AppStateManager.initializeApp();
-//        applySettings();
-//
-//        showWaitingScreen();
-//        showChatScreen();
         if (initialised.equals("true")) {
-
-            // Initialize the app and apply saved/default settings
             AppStateManager.initializeApp();
             applySettings();
 
@@ -97,6 +77,7 @@ public class AppController {
 
             List<Message> messageList = AppStateManager.loadMessages();
 
+            // Load messages and put them on the screen
             for (Message m : messageList) {
                 String sender = m.getSender();
                 String content = m.getContent();
@@ -106,22 +87,19 @@ public class AppController {
             if (isAdmin) {
                 startServer(port);
             } else {
+                addressScreen.setVisible(true);
                 startClientConnection(IP, port);
             }
 
-            // Listen for messages to display dynamically
-            message.textProperty().addListener((observableValue,
-                                                oldValue,
-                                                newValue) -> {
+            // Dynamic typing
+            message.textProperty().addListener((observableValue, oldValue, newValue) -> {
                 if (!newValue.trim().isEmpty()) {
                     output.println("TYPING: " + newValue);
                 } else {
                     output.println("STOP");
                 }
             });
-        }
-        else {
-            window.setStyle("-fx-background-color: #a459cd");
+        } else {
             notInstalledScreen.setVisible(true);
         }
     }
@@ -130,43 +108,29 @@ public class AppController {
     public void handleText() {
         if (message.getText() != null && !message.getText().trim().isEmpty()) {
             startSendingThread();
-            AppStateManager.saveMessage(
-                    AppStateManager.getUserID(),
-                    AppStateManager.fetchProperty("otherUserID"),
-                    message.getText());
+            AppStateManager.saveMessage(AppStateManager.getUserID(), AppStateManager.fetchProperty("otherUserID"), message.getText());
             addMessageToContainer(message.getText(), true, false);
             message.clear();
         }
     }
 
-    public void handleSettings(){
-        openWindow("settings.fxml", "Settings", 550, 350);
-    }
-
-    public void handleEvent() {
-        openWindow("event.fxml", "Plan An Event", 550, 350);
-    }
-
-    public void handleAddress(){
-        openWindow("address.fxml", "Change Address", 450, 400);
-    }
+    // Settings and Event Handlers
+    public void handleSettings() { openWindow("settings.fxml", "Settings", 550, 350); }
+    public void handleEvent() { openWindow("event.fxml", "Plan An Event", 550, 350); }
+    public void handleAddress() { openWindow("address.fxml", "Change Address", 450, 400); }
 
     // Apply settings immediately when they are saved
     public void applySettings() {
-        // Apply the background color change
         window.setStyle("-fx-background-color: " + savedColor);
-
-        // Apply the dynamic typing visibility
         dynamicLabel.setVisible(dynamicTypingEnabled.equals("true"));
     }
 
-    // Method to update background color
+    // Method to update settings
     public void updateBackgroundColor(Color color) {
         String hexColor = "#" + color.toString().substring(2);
         window.setStyle("-fx-background-color: " + hexColor);
     }
 
-    // Method to update dynamic typing visibility
     public void updateDynamicTyping(boolean isEnabled) {
         dynamicLabel.setVisible(isEnabled);
     }
@@ -174,34 +138,26 @@ public class AppController {
     // Start the server
     private void startServer(int port) {
         String currentIP = getLocalIPAddress();
-
         assert currentIP != null;
-        if (!currentIP.equals(serverIP)){
+
+        if (!currentIP.equals(serverIP)) {
             NotificationSender.sendEmail(recipient, currentIP);
             AppStateManager.updateProperty("serverIP", currentIP);
         }
 
         startTask(() -> {
             try (ServerSocket server = new ServerSocket(port, 0, InetAddress.getByName("0.0.0.0"))) {
-                // Notify the client before accepting the connection
                 if (!hasSentNotification) {
                     NotificationSender.sendEmail(recipient);
                     hasSentNotification = true;
                 }
-
-                // Wait for the client to connect
                 socket = server.accept();
-
                 showChatScreen();
-
-                // Initialize communication after client connection
                 initializeCommunication();
-
             } catch (IOException e) {
                 System.out.println("Server error: " + e.getMessage());
                 try {
                     Thread.sleep(2000);
-                    // Retry starting the server
                     startServer(port);
                 } catch (InterruptedException ex) {
                     Thread.currentThread().interrupt();
@@ -218,22 +174,13 @@ public class AppController {
 
             while (!isConnected && (System.currentTimeMillis() - startTime <= WAIT_TIME_MS)) {
                 try {
-                    System.out.println("Attempting to connect to the server...");
                     socket = new Socket(InetAddress.getByName(ip), port);
-
-                    // Connection established
-                    System.out.println("Connected to the server!");
                     isConnected = true;
-
                     showChatScreen();
-
-                    // Initialize communication
                     initializeCommunication();
                 } catch (IOException e) {
-                    System.out.println("Connection attempt failed. Retrying...");
                     try {
                         Thread.sleep(3000);
-
                         if (!hasSentNotification) {
                             NotificationSender.sendEmail(recipient);
                             hasSentNotification = true;
@@ -245,39 +192,32 @@ public class AppController {
             }
 
             if (!isConnected) {
-                System.out.println("Failed to connect within the timeout period.");
                 Platform.runLater(this::showEndScreen);
             }
         });
     }
 
-
-    // initializes the usernames and userIDs of all users in the .appdata file
+    // Initializes communication between the client and server
     private void initializeCommunication() {
         try {
-            input = new BufferedReader(
-                    new InputStreamReader(socket.getInputStream()));
+            input = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             output = new PrintWriter(socket.getOutputStream(), true);
-
-            // Start the thread responsible for reading messages
             startReadingThread();
         } catch (IOException e) {
             System.out.println("Communication setup error: " + e.getMessage());
         }
     }
 
-    // Start reading thread
+    // Start reading messages in a separate thread
     public void startReadingThread() {
         startTask(() -> {
             try {
                 String text;
                 while (!socket.isClosed()) {
                     text = input.readLine();
-
                     if (text != null) {
                         processIncomingMessage(text);
-                    }
-                    else {
+                    } else {
                         closeResources();
                         showEndScreen();
                         Platform.runLater(() -> System.exit(0));
@@ -305,70 +245,100 @@ public class AppController {
         });
     }
 
+    // Event and Event Confirmation Handlers
     public void sendEventInvite(String eventName, ZonedDateTime zonedDateTime) {
         String message = "EVENT: " + "\nYou are planning an event!!" +
                 "\nname: " + eventName + "\ntime: " + dtf.format(zonedDateTime);
-
         String[] outputArray = {eventName, zonedDateTime.toString()};
         String outputMessage = Arrays.toString(outputArray);
 
         output.println("EVENT: " + outputMessage);
-        System.out.println(outputMessage);
-
         addMessageToContainer(message.substring(8), true, true);
     }
 
+    private void event(String text) {
+        String eventMessage = text.substring(7);
+        String[] eventDetails = eventMessage.substring(1, eventMessage.length() - 1).split(", ");
+        String eventName = eventDetails[0];
+        String time = dtf.format(ZonedDateTime.parse(eventDetails[1]));
+
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+            alert.setTitle("A Sweet Request");
+            alert.setHeaderText(otherUser + " is planning something special. Are you in?");
+            alert.setContentText("Details:\nEvent: %s\nTime: %s".formatted(eventName, time));
+
+            ButtonType yesButton = new ButtonType("I'd Love To!");
+            ButtonType noButton = new ButtonType("Some other time");
+            alert.getButtonTypes().setAll(yesButton, noButton);
+
+            alert.showAndWait().ifPresent(response -> {
+                if (response == yesButton) {
+                    String[] details = {otherUser, me, eventName, time};
+                    output.println("EVENT_CONF: YES." + Arrays.toString(details));
+                    NotificationSender.sendEmail(recipient, "event", me, otherUser, eventName, time);
+                } else {
+                    output.println("EVENT_CONF: NO.");
+                }
+            });
+        });
+    }
+
+    private void eventConfirmation(String text) {
+        Label event = (Label) container.lookup("#eventLabel");
+        if (text.startsWith("YES.")) {
+            String[] eventDetails = text.substring(4, text.length() - 1).split(", ");
+            Platform.runLater(() -> event.setText("Aww, it's confirmed! 🎉 You're in for a fun time! 🥳"));
+            startTask(() -> NotificationSender.sendEmail(recipient, "event", eventDetails[0], eventDetails[1], eventDetails[2], eventDetails[3]));
+        } else {
+            Platform.runLater(() -> event.setText("Aww, maybe next time! 😢"));
+        }
+    }
+
+    private void processIncomingMessage(String text) {
+        if (text.startsWith("TYPING: ")) {
+            typing(text);
+        } else if (text.startsWith("STOP")) {
+            stop();
+        } else if (text.startsWith("EVENT: ")) {
+            event(text);
+        } else if (text.startsWith("EVENT_CONF: ")) {
+            eventConfirmation(text.substring(12));
+        } else if (text.startsWith("NORMAL: ")) {
+            Platform.runLater(() -> addMessageToContainer(text.substring(8), false, false));
+            String otherUserID = AppStateManager.fetchProperty("otherUserID");
+            AppStateManager.saveMessage(otherUserID, AppStateManager.getUserID(), text.substring(8));
+        }
+    }
+
+    // Method to add messages to the container
     private void addMessageToContainer(String messageText, boolean isSent, boolean isEvent) {
-        // Label for the message text
         Label messageLabel = new Label(messageText);
         messageLabel.setWrapText(true);
         messageLabel.setMaxWidth(450);
         messageLabel.setOpacity(0.85);
 
-        // HBox to hold the message
         HBox hbox = new HBox();
         hbox.setSpacing(10);
 
         if (isEvent) {
-            messageLabel.setStyle("-fx-background-color: #eded98; " +
-                    "-fx-padding: 15px; " +
-                    "-fx-border-radius: 15px;" +
-                    "-fx-background-radius: 15px;" +
-                    "-fx-border-width: 2px;" +
-                    "-fx-border-color: #FF9800;" +
-                    "-fx-font-size: 16px;" +
-                    "-fx-text-fill: #000000;" +
-                    "-fx-font-family: Monaco, 'Courier New', monospace;");
+            messageLabel.setStyle("-fx-background-color: #eded98; -fx-padding: 15px; -fx-border-radius: 15px; -fx-background-radius: 15px; -fx-border-width: 2px; -fx-border-color: #FF9800; -fx-font-size: 16px; -fx-text-fill: #000000; -fx-font-family: Monaco, 'Courier New', monospace;");
             if (isSent) {
                 messageLabel.setId("eventLabel");
-                messageLabel.setText(messageLabel.getText() + "\n\nWaiting " +
-                        "for " + otherUser + "'s response...");
+                messageLabel.setText(messageLabel.getText() + "\n\nWaiting for " + otherUser + "'s response...");
             }
         } else {
-            messageLabel.setStyle("-fx-background-color: transparent; " +
-                    "-fx-padding: 10px; " +
-                    "-fx-border-radius: 15px;" +
-                    "-fx-border-width: 2px;" +
-                    "-fx-border-color: #000000;" +
-                    "-fx-font-size: 16px;" +
-                    "-fx-text-fill: #000000;" +
-                    "-fx-font-family: Monaco, 'Courier New', monospace;");
+            messageLabel.setStyle("-fx-background-color: transparent; -fx-padding: 10px; -fx-border-radius: 15px; -fx-border-width: 2px; -fx-border-color: #000000; -fx-font-size: 16px; -fx-text-fill: #000000; -fx-font-family: Monaco, 'Courier New', monospace;");
         }
 
-        // If the message was sent by the user, align it to the right, otherwise left
         if (isSent) {
             hbox.setAlignment(Pos.CENTER_RIGHT);
         } else {
             hbox.setAlignment(Pos.CENTER_LEFT);
         }
 
-        // Add message label to the HBox
         hbox.getChildren().add(messageLabel);
-
-        // Add the message HBox to the container
         container.getChildren().add(hbox);
-
-        // Bind the scroll pane to always show the latest message
         scrollPane.vvalueProperty().bind(container.heightProperty());
     }
 
@@ -389,68 +359,30 @@ public class AppController {
         }
     }
 
-    // A method that handles threads by submitting it to the thread pool
+    // Utility methods
     private void startTask(Runnable task) {
         executor.submit(task);
     }
 
-    // A method to switch between waiting screen and chat screen
-    private void showChatScreen() {
-        Platform.runLater(() -> {
-            waitingScreen.setVisible(false);  // Hide waiting screen
-            notInstalledScreen.setVisible(false); // Hide not installed screen
-            chatScreen.setVisible(true);      // Show chat screen
-        });
-    }
-
-    // A method to switch to end screen and shut down the application gracefully
-    private void showEndScreen() {
-        chatScreen.setVisible(false);
-        exitScreen.setVisible(true);
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    // A method to switch to waiting screen and show change address button
-    // for client to change address in case IP of server changes
-    private void showWaitingScreen() {
-        addressScreen.setVisible(false); // Hide address screen
-        waitingScreen.setVisible(true);
-
-        if (admin.equals("false")){
-            changeBtn.setVisible(true);
-        }
-    }
-
-    /**
-     * Retrieves the local IP address of the machine running the server.
-     *
-     * @return The local IP address as a String, or null if unable to retrieve it.
-     */
     private static String getLocalIPAddress() {
         try {
-            for (NetworkInterface networkInterface :
-                    Collections.list(NetworkInterface.getNetworkInterfaces())) {
+            for (NetworkInterface networkInterface : Collections.list(NetworkInterface.getNetworkInterfaces())) {
                 if (networkInterface.isLoopback() || !networkInterface.isUp()) {
                     continue;
                 }
-                for (InetAddress address :
-                        Collections.list(networkInterface.getInetAddresses())) {
+                for (InetAddress address : Collections.list(networkInterface.getInetAddresses())) {
                     if (address instanceof Inet4Address) {
-                        return address.getHostAddress();  // Return the local IPv4 address
+                        return address.getHostAddress();
                     }
                 }
             }
         } catch (SocketException e) {
             System.out.println("Something went wrong: " + e.getMessage());
         }
-        return null;  // Return null if unable to retrieve the IP address
+        return null;
     }
 
-    private void openWindow(String fxml, String title, int width, int height){
+    private void openWindow(String fxml, String title, int width, int height) {
         FXMLLoader fxmlLoader = new FXMLLoader();
         fxmlLoader.setLocation(getClass().getResource(fxml));
 
@@ -458,127 +390,54 @@ public class AppController {
             Scene scene = new Scene(fxmlLoader.load(), width, height);
             Stage stage = new Stage();
 
-            if (fxml.equals("address.fxml")) {
-                AddressController addressController = fxmlLoader.getController();
-                addressController.setMainController(this);
-            }
-            if (fxml.equals("settings.fxml")) {
-                SettingsController settingsController = fxmlLoader.getController();
-                settingsController.setMainController(this);
-            }
-            if (fxml.equals("event.fxml")) {
-                EventController eventController = fxmlLoader.getController();
-                eventController.setMainController(this);
+            switch (fxml) {
+                case "address.fxml" -> {
+                    AddressController addressController = fxmlLoader.getController();
+                    addressController.initialize();
+                }
+                case "settings.fxml" -> {
+                    SettingsController settingsController = fxmlLoader.getController();
+                    settingsController.setMainController(this);
+                }
+                case "event.fxml" -> {
+                    EventController eventController = fxmlLoader.getController();
+                    eventController.setMainController(this);
+                }
             }
 
             stage.setTitle(title);
             stage.setScene(scene);
-            stage.setResizable(false);
             stage.show();
-
-            stage.setOnCloseRequest(windowEvent -> applySettings());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.out.println(e.getMessage());
         }
+    }
+
+    private void showWaitingScreen() {
+        waitingScreen.setVisible(true);
+    }
+
+    private void showChatScreen() {
+        Platform.runLater(() -> {
+            waitingScreen.setVisible(false);
+            addressScreen.setVisible(false);
+            chatScreen.setVisible(true);
+        });
+    }
+
+    private void showEndScreen() {
+        Platform.runLater(() -> {
+            chatScreen.setVisible(false);
+            exitScreen.setVisible(true);
+        });
     }
 
     private void typing(String text) {
-        Platform.runLater(() -> {
-            dynamicLabel.setOpacity(1);
-            dynamicLabel.setText(text);
-        });
+        dynamicLabel.setText(text.substring(8));
+        dynamicLabel.setVisible(true);
     }
 
     private void stop() {
-        Platform.runLater(() -> {
-            dynamicLabel.setOpacity(0);
-            dynamicLabel.setText("");
-        });
-    }
-
-    private void event(String text) {
-        String eventMessage = text.substring(7);
-
-        // Parse array string back to an array
-        String[] eventDetails =
-                eventMessage.substring(1, eventMessage.length()-1).split(", ");
-
-        String eventName = eventDetails[0];
-        String time = dtf.format(ZonedDateTime.parse(eventDetails[1]));
-
-        Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-
-            alert.setTitle("A Sweet Request");
-            alert.setHeaderText(otherUser + " " +
-                    "is planning something special. Are you in?");
-            alert.setContentText("""
-                    Details:
-                    Event: %s
-                    Time: %s
-                    """.formatted(eventName, time));
-
-            ButtonType yesButton = new ButtonType("I'd Love To!");
-            ButtonType noButton = new ButtonType("Some other time");
-            alert.getButtonTypes().setAll(yesButton, noButton);
-
-            // Handle response
-            alert.showAndWait().ifPresent(response -> {
-                if (response == yesButton){
-                    String[] details = {otherUser, me, eventName, time};
-
-                    output.println("EVENT_CONF: YES." + Arrays.toString(details));
-
-                    NotificationSender.sendEmail(recipient, "event",
-                            me, otherUser, eventName, time);
-                } else {
-                    output.println("EVENT_CONF: NO.");
-                }
-            });
-
-        });
-    }
-
-    private void eventConfirmation(String text) {
-        Label event = (Label) container.lookup("#eventLabel");
-
-        if (text.startsWith("YES.")) {
-            String[] eventDetails = text.substring(4, text.length() - 1).split(", ");
-
-            Platform.runLater(() -> {
-                event.setText("Aww, it's confirmed! 🎉 You're in for a fun time! 🥳");
-            });
-
-            startTask(() -> NotificationSender.sendEmail(recipient, "event",
-                    eventDetails[0],
-                    eventDetails[1],
-                    eventDetails[2],
-                    eventDetails[3]));
-
-        } else {
-            Platform.runLater(() -> event.setText("Aww, maybe next time! 😢"));
-        }
-    }
-
-    private void processIncomingMessage(String text){
-        if (text.startsWith("TYPING: ")) {
-            typing(text);
-        } else if (text.startsWith("STOP")) {
-            stop();
-        } else if (text.startsWith("EVENT: ")) {
-            event(text);
-        } else if (text.startsWith("EVENT_CONF: ")) {
-            eventConfirmation(text.substring(12));
-            System.out.println("done");
-        } else if (text.startsWith("NORMAL: ")) {
-            System.out.println("normal");
-            Platform.runLater(() -> addMessageToContainer(text.substring(8),
-                    false, false));
-
-            String otherUserID = AppStateManager.fetchProperty("otherUserID");
-            AppStateManager.saveMessage(otherUserID,
-                    AppStateManager.getUserID(),
-                    text.substring(8));
-        }
+        dynamicLabel.setVisible(false);
     }
 }
