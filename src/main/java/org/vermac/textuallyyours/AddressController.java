@@ -55,11 +55,20 @@ public class AddressController {
 
                 Socket socket = new Socket(InetAddress.getByName(newIP),port);
 
-                displayText.setVisible(true);
-                displayText.setText("Connectd to user! Please close the app " +
-                        "and open it again!");
+                String otherUserID = AppStateManager.fetchProperty(
+                        "otherUserID");
 
-                AppStateManager.updateProperty("serverIP", newIP);
+                if (otherUserID.equals(AppStateManager.getUserID())) {
+                    displayText.setVisible(true);
+                    displayText.setText("Connectd to user! Please close the app " +
+                            "and open it again!");
+                    AppStateManager.updateProperty("serverIP", newIP);
+                } else {
+                    displayText.setText("Nope! This is not YOUR partner. " +
+                            "Trying to be sneaky, huh? Go find your ACTUAL " +
+                            "one and only");
+                }
+
                 socket.close();
                 }
             catch (IOException e) {
