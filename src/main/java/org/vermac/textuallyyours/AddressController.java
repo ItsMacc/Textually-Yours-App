@@ -2,11 +2,9 @@ package org.vermac.textuallyyours;
 
 import com.AppState.io.AppStateManager;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.StackPane;
 
 import java.io.IOException;
@@ -28,12 +26,9 @@ public class AddressController {
         String savedColor = AppStateManager.fetchProperty("backgroundColor");
         window.setStyle("-fx-background-color: " + savedColor);
 
-        address.setOnKeyPressed(new EventHandler<KeyEvent>() {
-            @Override
-            public void handle(KeyEvent keyEvent) {
-                displayText.setVisible(false);
-                displayText.setText("");
-            }
+        address.setOnKeyPressed(keyEvent -> {
+            displayText.setVisible(false);
+            displayText.setText("");
         });
     }
 
@@ -60,7 +55,7 @@ public class AddressController {
 
                 if (otherUserID.equals(AppStateManager.getUserID())) {
                     displayText.setVisible(true);
-                    displayText.setText("Connectd to user! Please close the app " +
+                    displayText.setText("Connected to user! Please close the app " +
                             "and open it again!");
                     AppStateManager.updateProperty("serverIP", newIP);
                 } else {

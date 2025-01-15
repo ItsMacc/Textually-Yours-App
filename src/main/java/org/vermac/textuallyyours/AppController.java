@@ -176,7 +176,7 @@ public class AppController {
                 } catch (IOException e) {
                     System.out.println("IN CATCH");
                     try {
-                        Thread.sleep(3000);
+                        Thread.sleep(1000);
                         if (!hasSentNotification) {
                             NotificationSender.sendEmail(recipient);
                             hasSentNotification = true;
@@ -416,7 +416,7 @@ public class AppController {
             switch (fxml) {
                 case "address.fxml" -> {
                     AddressController addressController = fxmlLoader.getController();
-                    addressController.initialize();
+                    addressController.setMainController(this);
                 }
                 case "settings.fxml" -> {
                     SettingsController settingsController = fxmlLoader.getController();
