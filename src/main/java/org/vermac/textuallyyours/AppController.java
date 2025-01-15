@@ -478,8 +478,6 @@ public class AppController {
     }
 
     private void stop() {
-        Platform.runLater(() -> {
-            dynamicLabel.setVisible(false);
-        });
+        Platform.runLater(() -> dynamicLabel.setVisible(false));
     }
 }
