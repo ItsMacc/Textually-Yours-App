@@ -298,9 +298,7 @@ public class AppController {
                     String[] details = {otherUser, me, eventName, time};
                     output.println("EVENT_CONF: YES." + Arrays.toString(details));
 
-                    startTask(() -> {
-                        NotificationSender.sendEmail(recipient, "event", otherUser, me, eventName, time);
-                    });
+                    startTask(() -> NotificationSender.sendEmail(recipient, "event", otherUser, me, eventName, time));
                 } else {
                     output.println("EVENT_CONF: NO.");
                 }
