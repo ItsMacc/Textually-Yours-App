@@ -140,7 +140,7 @@ public class AppController {
         assert currentIP != null;
 
         if (!currentIP.equals(serverIP)) {
-            NotificationSender.sendEmail(recipient, currentIP);
+            NotificationSender.sendEmail(recipient, "address", currentIP);
             AppStateManager.updateProperty("serverIP", currentIP);
         }
 

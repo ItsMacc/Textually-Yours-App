@@ -25,7 +25,9 @@ public class NotificationSender {
     private static final String ADDRESS_BODY =
             "Hello,<br><br>" +
                     "We’ve detected that your registered address has recently been updated.<br>" +
-                    "To ensure uninterrupted service, please verify and update your address to the following:<br>";
+                    "To ensure uninterrupted service, please verify and " +
+                    "update your address to the following:<br>%s<br><br>Best," +
+                    "<br>Textually Yours";
 
     private static final String EVENT_SUBJECT = "Your Special Date is Confirmed! \uD83D\uDC95";
 
@@ -69,7 +71,7 @@ public class NotificationSender {
                 }
                 case "address" -> {
                     SUBJECT = ADDRESS_SUBJECT;
-                    BODY = ADDRESS_BODY + "<br>" + "<br>Best,<br>Textually Yours";
+                    BODY = ADDRESS_BODY.formatted(args[0]);
                 }
                 case "event" -> {
                     SUBJECT = EVENT_SUBJECT;
