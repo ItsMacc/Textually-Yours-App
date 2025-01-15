@@ -35,7 +35,7 @@ public class AppController {
     private BufferedReader input;
     private PrintWriter output;
     private Socket socket;
-    private boolean hasSentNotification = false;
+    private boolean hasSentNotification = true;
 
     String roomKey = AppStateManager.fetchProperty("roomKey");
     String initialised = AppStateManager.fetchProperty("initialised");
@@ -176,7 +176,7 @@ public class AppController {
                 } catch (IOException e) {
                     System.out.println("IN CATCH");
                     try {
-                        Thread.sleep(5000);
+                        Thread.sleep(3000);
                         if (!hasSentNotification) {
                             NotificationSender.sendEmail(recipient);
                             hasSentNotification = true;
@@ -298,11 +298,9 @@ public class AppController {
                     String[] details = {otherUser, me, eventName, time};
                     output.println("EVENT_CONF: YES." + Arrays.toString(details));
 
-                    System.out.println(Arrays.toString(details));
-                    System.out.println("SENDING EVENT THROUGH EVENT()");
-                    System.out.println(otherUser + " " + me + " " + eventName + " " + time);
-
-                    NotificationSender.sendEmail(recipient, "event", otherUser, me, eventName, time);
+                    startTask(() -> {
+                        NotificationSender.sendEmail(recipient, "event", otherUser, me, eventName, time);
+                    });
                 } else {
                     output.println("EVENT_CONF: NO.");
                 }
@@ -316,10 +314,6 @@ public class AppController {
             String[] eventDetails =
                     text.substring(5, text.length() - 1).split(", ", 4);
             Platform.runLater(() -> event.setText("Aww, it's confirmed! 🎉 You're in for a fun time! 🥳"));
-
-            System.out.println("GOT EVENT DETAILS IN CONFIRMATION()");
-            System.out.println(eventDetails[0] + " " + eventDetails[1] + " " + eventDetails[3]);
-
             NotificationSender.sendEmail(recipient, "event", eventDetails[1], eventDetails[0], eventDetails[2], eventDetails[3]);
         } else {
             Platform.runLater(() -> event.setText("Aww, maybe next time! 😢"));
@@ -447,6 +441,7 @@ public class AppController {
     private void showWaitingScreen() {
         waitingScreen.setVisible(true);
         if (admin.equals("false")){
+            System.out.println("Test");
             addressScreen.setVisible(true);
         }
     }

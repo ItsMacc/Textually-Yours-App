@@ -14,10 +14,11 @@ public class NotificationSender {
     private static final String SMTP_PORT = "587";
 
     private static final String DEFAULT_SUBJECT = "Guess Who's Missing You " +
-            "Right Now? \uD83D\uDC95\uD83D\uDC95";
+            "Right Now? \uD83D\uDC8C\uD83D\uDC95";
     private static final String DEFAULT_BODY =
-            "We don't want to spill the beans, but %s can't stop thinking about you.<br>" +
-                    "Don't keep them waiting.<br><br>Best,<br>Textually Yours";
+            "We don't want to spill the beans, but %s can't stop thinking about you\uD83D\uDC93\uD83D\uDC93.<br>" +
+                    "Don't keep them waiting...<br><br>Best,<br>Textually " +
+                    "Yours";
 
     private static final String ADDRESS_SUBJECT = "Address Update Alert";
 
@@ -34,8 +35,8 @@ public class NotificationSender {
                     "Here are the details for the event:<br>" + "<br>" +
                     "Event: %s<br>" +
                     "Time: %s<br><br>" +
-                    "We hope you both have an unforgettable time together!" +
-                    "Remember, moments like these are what make life special.<br><br>" +
+                    "We hope you both have an unforgettable time together! " +
+                    "Remember, moments like these are what make life special\uD83D\uDC96.<br><br>" +
                     "Best,<br>Textually Yours";
 
     public static void sendEmail(String recipient) {
