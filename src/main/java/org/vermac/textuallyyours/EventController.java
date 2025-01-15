@@ -43,7 +43,7 @@ public class EventController {
     public void sendInvite(ActionEvent event) {
         if (isValid()) {
             // Send event invite with ZonedDateTime
-            ZonedDateTime zonedDateTime = createZonedDateTime(date.getValue().toString(), time.getText());
+            ZonedDateTime zonedDateTime = createZonedDateTime(time.getText());
             appController.sendEventInvite(eventName.getText(), zonedDateTime);
 
             Stage currentStage =
@@ -86,11 +86,10 @@ public class EventController {
     /**
      * Converts the input date and time into ZonedDateTime
      *
-     * @param dateString The selected date as a string
      * @param timeString The input time in 'h:mm a' format
      * @return The ZonedDateTime representing the event date and time
      */
-    private ZonedDateTime createZonedDateTime(String dateString, String timeString) {
+    private ZonedDateTime createZonedDateTime(String timeString) {
         LocalDate eventDate = date.getValue();
         LocalTime eventTime = LocalTime.parse(timeString, timeFormatter);
 
