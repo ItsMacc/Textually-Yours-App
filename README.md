@@ -1,3 +1,5 @@
+# **Textually Yours**
+
 **Textually Yours** is a chat app designed for meaningful conversations between two people. It’s simple, direct, and focuses on the beauty of a one-on-one connection without distractions.
 
 ## What is Textually Yours?
@@ -9,10 +11,9 @@
 - **Watch the Conversation Unfold**: See exactly what the other person is typing in real-time, even before they hit send. It's a way to truly connect and engage in the conversation as it happens, enhancing the experience of communication.
 - **Complete Privacy**: All your messages are stored locally on your device — no clouds, no servers. This ensures your messages stay private and secure, just between you and your special someone. It's all about trust.
 - **The One and Only**: You can only connect with **one** person. Think carefully about your choice, because once you're connected, it’s permanent. If you ever delete the app, don’t worry — the connection stays intact, like an emotional boomerang that always comes back.
-- **Know If They Miss You**: Sometimes, it’s the little things that count. 
-  If you’re waiting for your special someone to respond, Textually Yours will notify them that you’re waiting! Who knows, they might just be missing you too!
-- **Make It Your Own**: Feel free to customize the application in the way you
-  want!
+- **Know If They Miss You**: Sometimes, it’s the little things that count. If you’re waiting for your special someone to respond, Textually Yours will notify them that you’re waiting! Who knows, they might just be missing you too!
+- **Plan Awesome Events**: Forget the back-and-forth scheduling chaos. With Textually Yours, you and your partner can seamlessly plan your next hangout, date, or Netflix marathon right from the app. As soon as plans are set, you both get instant updates—because nothing should come between you and quality time. (Well, maybe a timezone.)
+- **Make It Your Own**: Feel free to customize the application in the way you want!
 
 ---
 
@@ -27,23 +28,17 @@
 
 **Download the macOS App**:
 - Visit the [GitHub tags section](https://github.com/ItsMacc/TextuallyYours/tags) to download the `.pkg` file under the latest release.
-- If you are running the application for the first time, you may encounter 
-  an error stating 'macOS cannot verify the app'. Go to settings > privacy 
-  and security > security (scroll down) and click on 'open anyway'.
+- If you are running the application for the first time, you may encounter an error stating 'macOS cannot verify the app'. Go to settings > privacy and security > security (scroll down) and click on 'open anyway'.
 - Finish the installation process and open the app again!
 
-That’s it! You’re all set to enjoy **Textually Yours**. If you encounter any 
-issues during installation, feel free to contact me through 
-[textuallyyoursco@gmail.com](textuallyyoursco@gmail.com)
+That’s it! You’re all set to enjoy **Textually Yours**. If you encounter any issues during installation, feel free to contact me through [textuallyyoursco@gmail.com](mailto:textuallyyoursco@gmail.com)
 
 ---
 ## Copyright
-Copyright © 2025, Vermac.co
+Copyright © 2025, Vermac.co  
 All rights reserved.
 
-This software is the proprietary information of Aakarshan Khosla.
-Unauthorized copying, modifying, or distributing of this software,
-or any part of it, is strictly prohibited.
+This software is the proprietary information of Aakarshan Khosla.  
+Unauthorized copying, modifying, or distributing of this software, or any part of it, is strictly prohibited.
 
-You are not authorized to use, copy, modify, distribute, or create derivative works
-from this software without prior written permission from the copyright holder.
+You are not authorized to use, copy, modify, distribute, or create derivative works from this software without prior written permission from the copyright holder.
