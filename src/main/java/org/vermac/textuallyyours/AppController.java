@@ -8,10 +8,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import notification.NotificationSender;
@@ -85,11 +82,13 @@ public class AppController {
             }
 
             if (isAdmin) {
-                startServer(port);
+                startServer(port, 5000);
             } else {
                 addressScreen.setVisible(true);
                 startClientConnection(IP, port);
             }
+
+            dynamicLabel.setVisible(false);
 
             // Dynamic typing
             message.textProperty().addListener((observableValue, oldValue, newValue) -> {
@@ -136,7 +135,7 @@ public class AppController {
     }
 
     // Start the server
-    private void startServer(int port) {
+    private void startServer(int port, int timeout) {
         String currentIP = getLocalIPAddress();
         assert currentIP != null;
 
@@ -147,21 +146,17 @@ public class AppController {
 
         startTask(() -> {
             try (ServerSocket server = new ServerSocket(port, 0, InetAddress.getByName("0.0.0.0"))) {
-                if (!hasSentNotification) {
-                    NotificationSender.sendEmail(recipient);
-                    hasSentNotification = true;
-                }
+                server.setSoTimeout(timeout);
                 socket = server.accept();
                 showChatScreen();
                 initializeCommunication();
             } catch (IOException e) {
                 System.out.println("Server error: " + e.getMessage());
-                try {
-                    Thread.sleep(2000);
-                    startServer(port);
-                } catch (InterruptedException ex) {
-                    Thread.currentThread().interrupt();
+
+                if (hasSentNotification) {
+                    NotificationSender.sendEmail(recipient);
                 }
+                startServer(port, WAIT_TIME_MS);
             }
         });
     }
@@ -179,8 +174,9 @@ public class AppController {
                     showChatScreen();
                     initializeCommunication();
                 } catch (IOException e) {
+                    System.out.println("IN CATCH");
                     try {
-                        Thread.sleep(3000);
+                        Thread.sleep(5000);
                         if (!hasSentNotification) {
                             NotificationSender.sendEmail(recipient);
                             hasSentNotification = true;
@@ -220,7 +216,7 @@ public class AppController {
                     } else {
                         closeResources();
                         showEndScreen();
-                        Platform.runLater(() -> System.exit(0));
+                        System.exit(0);
                     }
                 }
             } catch (IOException e) {
@@ -264,19 +260,49 @@ public class AppController {
 
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("A Sweet Request");
-            alert.setHeaderText(otherUser + " is planning something special. Are you in?");
-            alert.setContentText("Details:\nEvent: %s\nTime: %s".formatted(eventName, time));
+            alert.setTitle("A Special Invitation!");
+            alert.setHeaderText(otherUser + " is planning something special! Are you in?");
+            alert.setContentText("Event: %s\nTime: %s".formatted(eventName, time));
 
             ButtonType yesButton = new ButtonType("I'd Love To!");
             ButtonType noButton = new ButtonType("Some other time");
+
+            String buttonStyle = "-fx-border-width: 1px; -fx-border-color: " +
+                    "black;" +
+                    " " +
+                    "-fx-border-radius: 5px; -fx-background-color: " +
+                    "transparent; -fx-font-family: Monaco, 'Courier New', " +
+                    "monospace;";
+            String labelStyle = "-fx-font-family: Monaco, 'Courier New', " +
+                    "monospace; -fx-font-size: 16px;";
             alert.getButtonTypes().setAll(yesButton, noButton);
+
+            DialogPane dialogPane = alert.getDialogPane();
+            dialogPane.setGraphic(null);
+            dialogPane.setStyle("-fx-background-color: " + savedColor);
+            dialogPane.lookupButton(yesButton).setStyle(buttonStyle);
+            dialogPane.lookupButton(noButton).setStyle(buttonStyle);
+
+            Region headerPanel = (Region) dialogPane.lookup(".header-panel");
+            if (headerPanel != null) {
+                headerPanel.setStyle("-fx-background-color: " + savedColor);
+            }
+
+            Label header = (Label) dialogPane.lookup(".header-panel .label");
+            if (header != null) {
+                header.setStyle(labelStyle + "-fx-font-size: 16px");
+            }
 
             alert.showAndWait().ifPresent(response -> {
                 if (response == yesButton) {
                     String[] details = {otherUser, me, eventName, time};
                     output.println("EVENT_CONF: YES." + Arrays.toString(details));
-                    NotificationSender.sendEmail(recipient, "event", me, otherUser, eventName, time);
+
+                    System.out.println(Arrays.toString(details));
+                    System.out.println("SENDING EVENT THROUGH EVENT()");
+                    System.out.println(otherUser + " " + me + " " + eventName + " " + time);
+
+                    NotificationSender.sendEmail(recipient, "event", otherUser, me, eventName, time);
                 } else {
                     output.println("EVENT_CONF: NO.");
                 }
@@ -287,9 +313,14 @@ public class AppController {
     private void eventConfirmation(String text) {
         Label event = (Label) container.lookup("#eventLabel");
         if (text.startsWith("YES.")) {
-            String[] eventDetails = text.substring(4, text.length() - 1).split(", ");
+            String[] eventDetails =
+                    text.substring(5, text.length() - 1).split(", ", 4);
             Platform.runLater(() -> event.setText("Aww, it's confirmed! 🎉 You're in for a fun time! 🥳"));
-            startTask(() -> NotificationSender.sendEmail(recipient, "event", eventDetails[0], eventDetails[1], eventDetails[2], eventDetails[3]));
+
+            System.out.println("GOT EVENT DETAILS IN CONFIRMATION()");
+            System.out.println(eventDetails[0] + " " + eventDetails[1] + " " + eventDetails[3]);
+
+            NotificationSender.sendEmail(recipient, "event", eventDetails[1], eventDetails[0], eventDetails[2], eventDetails[3]);
         } else {
             Platform.runLater(() -> event.setText("Aww, maybe next time! 😢"));
         }
@@ -316,13 +347,13 @@ public class AppController {
         Label messageLabel = new Label(messageText);
         messageLabel.setWrapText(true);
         messageLabel.setMaxWidth(450);
-        messageLabel.setOpacity(0.85);
 
         HBox hbox = new HBox();
         hbox.setSpacing(10);
 
         if (isEvent) {
-            messageLabel.setStyle("-fx-background-color: #eded98; -fx-padding: 15px; -fx-border-radius: 15px; -fx-background-radius: 15px; -fx-border-width: 2px; -fx-border-color: #FF9800; -fx-font-size: 16px; -fx-text-fill: #000000; -fx-font-family: Monaco, 'Courier New', monospace;");
+            messageLabel.setOpacity(0.85);
+            messageLabel.setStyle("-fx-background-color: transparent; -fx-padding: 15px; -fx-border-radius: 15px; -fx-background-radius: 15px; -fx-border-width: 2px; -fx-border-color: #FF9800; -fx-font-size: 16px; -fx-text-fill: #000000; -fx-font-family: Monaco, 'Courier New', monospace;");
             if (isSent) {
                 messageLabel.setId("eventLabel");
                 messageLabel.setText(messageLabel.getText() + "\n\nWaiting for " + otherUser + "'s response...");
@@ -415,6 +446,9 @@ public class AppController {
 
     private void showWaitingScreen() {
         waitingScreen.setVisible(true);
+        if (admin.equals("false")){
+            addressScreen.setVisible(true);
+        }
     }
 
     private void showChatScreen() {
@@ -426,18 +460,26 @@ public class AppController {
     }
 
     private void showEndScreen() {
-        Platform.runLater(() -> {
-            chatScreen.setVisible(false);
-            exitScreen.setVisible(true);
-        });
+        chatScreen.setVisible(false);
+        exitScreen.setVisible(true);
+
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private void typing(String text) {
-        dynamicLabel.setText(text.substring(8));
-        dynamicLabel.setVisible(true);
+        Platform.runLater(() -> {
+            dynamicLabel.setText(text);
+            dynamicLabel.setVisible(true);
+        });
     }
 
     private void stop() {
-        dynamicLabel.setVisible(false);
+        Platform.runLater(() -> {
+            dynamicLabel.setVisible(false);
+        });
     }
 }

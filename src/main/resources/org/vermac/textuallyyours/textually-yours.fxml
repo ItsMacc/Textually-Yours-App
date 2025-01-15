@@ -87,7 +87,7 @@
         -fx-font-size: 16px;
         -fx-text-fill: #000000;
         -fx-font-family: Monaco, 'Courier New', monospace;" wrapText="true"
-               maxWidth="400" opacity="0">
+               maxWidth="400" visible="false">
           <padding>
             <Insets left="10" right="10" top="2" bottom="2"/>
           </padding>
