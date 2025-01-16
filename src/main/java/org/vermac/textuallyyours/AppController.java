@@ -153,8 +153,9 @@ public class AppController {
             } catch (IOException e) {
                 System.out.println("Server error: " + e.getMessage());
 
-                if (hasSentNotification) {
+                if (!hasSentNotification) {
                     NotificationSender.sendEmail(recipient);
+                    hasSentNotification = true;
                 }
                 startServer(port, WAIT_TIME_MS);
             }
@@ -163,32 +164,36 @@ public class AppController {
 
     // Start the client connection
     private void startClientConnection(String ip, int port) {
+
         startTask(() -> {
             long startTime = System.currentTimeMillis();
-            boolean isConnected = false;
+            boolean hasSentNotification = false;
 
-            while (!isConnected && (System.currentTimeMillis() - startTime <= WAIT_TIME_MS)) {
+            while (true) {
                 try {
+                    // Try connecting to the server
                     socket = new Socket(InetAddress.getByName(ip), port);
-                    isConnected = true;
+
                     showChatScreen();
                     initializeCommunication();
+                    break;
                 } catch (IOException e) {
-                    System.out.println("IN CATCH");
+                    long elapsedTime = (System.currentTimeMillis() - startTime) / 1000;
+
+                    // Send notification only once after 5 seconds
+                    if (elapsedTime >= 5 && !hasSentNotification) {
+                        NotificationSender.sendEmail(recipient);
+                        hasSentNotification = true;
+                    }
+
+                    // Wait for 1 second before retrying
                     try {
                         Thread.sleep(1000);
-                        if (!hasSentNotification) {
-                            NotificationSender.sendEmail(recipient);
-                            hasSentNotification = true;
-                        }
                     } catch (InterruptedException ex) {
                         Thread.currentThread().interrupt();
+                        return;
                     }
                 }
-            }
-
-            if (!isConnected) {
-                Platform.runLater(this::showEndScreen);
             }
         });
     }
