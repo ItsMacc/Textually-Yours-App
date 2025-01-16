@@ -41,7 +41,6 @@ public class AppController {
     String initialised = AppStateManager.fetchProperty("initialised");
     String serverIP = AppStateManager.fetchProperty("serverIP");
     String admin = AppStateManager.fetchProperty("admin");
-    String dynamicTypingEnabled = AppStateManager.fetchProperty("dynamicTypingEnabled");
     String me = AppStateManager.fetchProperty("username");
     String otherUser = AppStateManager.fetchProperty("otherUser");
     String recipient = AppStateManager.fetchProperty("otherUserEmail");
@@ -120,18 +119,14 @@ public class AppController {
 
     // Apply settings immediately when they are saved
     public void applySettings() {
+        savedColor = AppStateManager.fetchProperty("backgroundColor");
         window.setStyle("-fx-background-color: " + savedColor);
-        dynamicLabel.setVisible(dynamicTypingEnabled.equals("true"));
     }
 
     // Method to update settings
     public void updateBackgroundColor(Color color) {
         String hexColor = "#" + color.toString().substring(2);
         window.setStyle("-fx-background-color: " + hexColor);
-    }
-
-    public void updateDynamicTyping(boolean isEnabled) {
-        dynamicLabel.setVisible(isEnabled);
     }
 
     // Start the server
@@ -386,6 +381,7 @@ public class AppController {
                 case "settings.fxml" -> {
                     SettingsController settingsController = fxmlLoader.getController();
                     settingsController.setMainController(this);
+                    stage.setOnCloseRequest(event -> applySettings());
                 }
                 case "event.fxml" -> {
                     EventController eventController = fxmlLoader.getController();
