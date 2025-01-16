@@ -6,7 +6,6 @@ import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
-import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -17,8 +16,6 @@ public class SettingsController {
     @FXML
     private ColorPicker color;
     @FXML
-    private Label allowLabel;
-    @FXML
     private RadioButton dynamicTypingEnabled;
     @FXML
     private Button save;
@@ -27,7 +24,6 @@ public class SettingsController {
 
     public void initialize() {
         String savedColor = AppStateManager.fetchProperty("backgroundColor");
-        String otherUser = AppStateManager.fetchProperty("otherUser");
 
         boolean dynamicTyping = Boolean.parseBoolean(AppStateManager.fetchProperty("dynamicTypingEnabled"));
 

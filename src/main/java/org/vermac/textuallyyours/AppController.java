@@ -58,7 +58,6 @@ public class AppController {
     @FXML private VBox container;
     @FXML private ScrollPane scrollPane;
     @FXML private Label dynamicLabel;
-    @FXML private Button changeBtn;
 
     // Start the application
     public void initialize() {
@@ -98,6 +97,7 @@ public class AppController {
                     output.println("STOP");
                 }
             });
+
         } else {
             notInstalledScreen.setVisible(true);
         }
@@ -263,57 +263,7 @@ public class AppController {
         String eventName = eventDetails[0];
         String time = dtf.format(ZonedDateTime.parse(eventDetails[1]));
 
-        Platform.runLater(() -> {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("A Special Invitation!");
-            alert.setHeaderText(otherUser + " is planning something special! Are you in?");
-            alert.setContentText("Event: %s\nTime: %s".formatted(eventName, time));
-
-            ButtonType yesButton = new ButtonType("I'd Love To!");
-            ButtonType noButton = new ButtonType("Some other time :(");
-
-            String buttonStyle = "-fx-border-width: 1px; -fx-border-color: " +
-                    "black; -fx-border-radius: 5px; -fx-background-color: " +
-                    "transparent; -fx-font-family: Monaco, 'Courier New', " +
-                    "monospace; -fx-font-size: 14px";
-            String labelStyle = "-fx-font-family: Monaco, 'Courier New', " +
-                    "monospace; -fx-font-size: 16px;";
-            String contentStyle = "-fx-font-family: Monaco, 'Courier New', " +
-                    "monospace; -fx-font-size: 16px;";
-            alert.getButtonTypes().setAll(yesButton, noButton);
-
-            DialogPane dialogPane = alert.getDialogPane();
-            dialogPane.setGraphic(null);
-            dialogPane.setStyle("-fx-background-color: " + savedColor);
-            dialogPane.lookupButton(yesButton).setStyle(buttonStyle);
-            dialogPane.lookupButton(noButton).setStyle(buttonStyle);
-
-            Region headerPanel = (Region) dialogPane.lookup(".header-panel");
-            if (headerPanel != null) {
-                headerPanel.setStyle("-fx-background-color: " + savedColor);
-            }
-
-            Label header = (Label) dialogPane.lookup(".header-panel .label");
-            if (header != null) {
-                header.setStyle(labelStyle + "-fx-font-size: 16px");
-            }
-
-            Label content = (Label) dialogPane.lookup(".content.label");
-            if (content != null) {
-                content.setStyle(contentStyle);
-            }
-
-            alert.showAndWait().ifPresent(response -> {
-                if (response == yesButton) {
-                    String[] details = {otherUser, me, eventName, time};
-                    output.println("E_C: YES." + Arrays.toString(details));
-
-                    startTask(() -> NotificationSender.sendEmail(recipient, "event", otherUser, me, eventName, time));
-                } else {
-                    output.println("E_C: NO.");
-                }
-            });
-        });
+        Platform.runLater(() -> displayEventAlert(eventName, time));
     }
 
     private void eventConfirmation(String text) {
@@ -486,6 +436,62 @@ public class AppController {
     }
 
     private void stop() {
-        Platform.runLater(() -> dynamicLabel.setVisible(false));
+        Platform.runLater(() -> {
+            dynamicLabel.setVisible(false);
+            dynamicLabel.setText("");
+        });
+    }
+
+    private void displayEventAlert(String eventName, String time) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("A Special Invitation!");
+        alert.setHeaderText(otherUser + " is planning something special! Are you in?");
+        alert.setContentText("Event: %s\nTime: %s".formatted(eventName, time));
+
+        ButtonType yesButton = new ButtonType("I'd Love To!");
+        ButtonType noButton = new ButtonType("Some other time :(");
+
+        String buttonStyle = "-fx-border-width: 1px; -fx-border-color: " +
+                "black; -fx-border-radius: 5px; -fx-background-color: " +
+                "transparent; -fx-font-family: Monaco, 'Courier New', " +
+                "monospace; -fx-font-size: 14px";
+        String labelStyle = "-fx-font-family: Monaco, 'Courier New', " +
+                "monospace; -fx-font-size: 16px;";
+        String contentStyle = "-fx-font-family: Monaco, 'Courier New', " +
+                "monospace; -fx-font-size: 16px; -fx-padding: 0px 0px 10px 10px";
+
+        alert.getButtonTypes().setAll(yesButton, noButton);
+
+        DialogPane dialogPane = alert.getDialogPane();
+        dialogPane.setGraphic(null);
+        dialogPane.setStyle("-fx-background-color: " + savedColor);
+        dialogPane.lookupButton(yesButton).setStyle(buttonStyle);
+        dialogPane.lookupButton(noButton).setStyle(buttonStyle);
+
+        Region headerPanel = (Region) dialogPane.lookup(".header-panel");
+        if (headerPanel != null) {
+            headerPanel.setStyle("-fx-background-color: " + savedColor);
+        }
+
+        Label header = (Label) dialogPane.lookup(".header-panel .label");
+        if (header != null) {
+            header.setStyle(labelStyle + "-fx-font-size: 16px");
+        }
+
+        Label content = (Label) dialogPane.lookup(".content.label");
+        if (content != null) {
+            content.setStyle(contentStyle);
+        }
+
+        alert.showAndWait().ifPresent(response -> {
+            if (response == yesButton) {
+                String[] details = {otherUser, me, eventName, time};
+                output.println("E_C: YES." + Arrays.toString(details));
+
+                startTask(() -> NotificationSender.sendEmail(recipient, "event", otherUser, me, eventName, time));
+            } else {
+                output.println("E_C: NO.");
+            }
+        });
     }
 }
