@@ -93,7 +93,7 @@ public class AppController {
             // Dynamic typing
             message.textProperty().addListener((observableValue, oldValue, newValue) -> {
                 if (!newValue.trim().isEmpty()) {
-                    output.println("TYPING: " + newValue);
+                    output.println("T: " + newValue);
                 } else {
                     output.println("STOP");
                 }
@@ -107,7 +107,7 @@ public class AppController {
     public void handleText() {
         if (message.getText() != null && !message.getText().trim().isEmpty()) {
             startSendingThread();
-            AppStateManager.saveMessage(AppStateManager.getUserID(), AppStateManager.fetchProperty("otherUserID"), message.getText());
+            AppStateManager.saveMessage(AppStateManager.getUserID(), AppStateManager.fetchProperty("otherUserID"), message.getText().trim());
             addMessageToContainer(message.getText(), true, false);
             message.clear();
         }
@@ -233,7 +233,7 @@ public class AppController {
             try {
                 String text = message.getText();
                 if (text != null) {
-                    output.println("NORMAL: " + text);
+                    output.println("N: " + text);
                 }
             } catch (Exception e) {
                 System.out.println("Error sending message: " + e.getMessage());
@@ -248,12 +248,12 @@ public class AppController {
         String[] outputArray = {eventName, zonedDateTime.toString()};
         String outputMessage = Arrays.toString(outputArray);
 
-        output.println("EVENT: " + outputMessage);
+        output.println("E: " + outputMessage);
         addMessageToContainer(message.substring(8), true, true);
     }
 
     private void event(String text) {
-        String eventMessage = text.substring(7);
+        String eventMessage = text.substring(3);
         String[] eventDetails = eventMessage.substring(1, eventMessage.length() - 1).split(", ");
         String eventName = eventDetails[0];
         String time = dtf.format(ZonedDateTime.parse(eventDetails[1]));
@@ -265,7 +265,7 @@ public class AppController {
             alert.setContentText("Event: %s\nTime: %s".formatted(eventName, time));
 
             ButtonType yesButton = new ButtonType("I'd Love To!");
-            ButtonType noButton = new ButtonType("Some other time");
+            ButtonType noButton = new ButtonType("Some other time :(");
 
             String buttonStyle = "-fx-border-width: 1px; -fx-border-color: " +
                     "black;" +
@@ -296,17 +296,19 @@ public class AppController {
             alert.showAndWait().ifPresent(response -> {
                 if (response == yesButton) {
                     String[] details = {otherUser, me, eventName, time};
-                    output.println("EVENT_CONF: YES." + Arrays.toString(details));
+                    output.println("E_C: YES." + Arrays.toString(details));
 
                     startTask(() -> NotificationSender.sendEmail(recipient, "event", otherUser, me, eventName, time));
                 } else {
-                    output.println("EVENT_CONF: NO.");
+                    output.println("E_C: NO.");
                 }
             });
         });
     }
 
     private void eventConfirmation(String text) {
+        text = text.substring(5);
+
         Label event = (Label) container.lookup("#eventLabel");
         if (text.startsWith("YES.")) {
             String[] eventDetails =
@@ -319,24 +321,24 @@ public class AppController {
     }
 
     private void processIncomingMessage(String text) {
-        if (text.startsWith("TYPING: ")) {
+        if (text.startsWith("T: ")) {
             typing(text);
         } else if (text.startsWith("STOP")) {
             stop();
-        } else if (text.startsWith("EVENT: ")) {
+        } else if (text.startsWith("E: ")) {
             event(text);
-        } else if (text.startsWith("EVENT_CONF: ")) {
-            eventConfirmation(text.substring(12));
-        } else if (text.startsWith("NORMAL: ")) {
-            Platform.runLater(() -> addMessageToContainer(text.substring(8), false, false));
+        } else if (text.startsWith("E_C: ")) {
+            eventConfirmation(text);
+        } else if (text.startsWith("N: ")) {
+            Platform.runLater(() -> addMessageToContainer(text.substring(3), false, false));
             String otherUserID = AppStateManager.fetchProperty("otherUserID");
-            AppStateManager.saveMessage(otherUserID, AppStateManager.getUserID(), text.substring(8));
+            AppStateManager.saveMessage(otherUserID, AppStateManager.getUserID(), text.substring(3));
         }
     }
 
     // Method to add messages to the container
     private void addMessageToContainer(String messageText, boolean isSent, boolean isEvent) {
-        Label messageLabel = new Label(messageText);
+        Label messageLabel = new Label(messageText.trim());
         messageLabel.setWrapText(true);
         messageLabel.setMaxWidth(450);
 
@@ -465,7 +467,7 @@ public class AppController {
 
     private void typing(String text) {
         Platform.runLater(() -> {
-            dynamicLabel.setText(text);
+            dynamicLabel.setText("TYPING: " + text.substring(3));
             dynamicLabel.setVisible(true);
         });
     }
