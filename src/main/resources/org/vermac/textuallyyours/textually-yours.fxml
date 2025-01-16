@@ -77,11 +77,11 @@
       <!-- Dynamic Typing Label -->
       <VBox spacing="10">
         <padding>
-          <Insets top="15" bottom="15" left="10"/>
+          <Insets bottom="10" left="10"/>
         </padding>
         <Label fx:id="dynamicLabel" style="
         -fx-background-color: transparent;
-        -fx-border-radius: 15px;
+        -fx-border-radius: 20px;
         -fx-border-width: 2px;
         -fx-border-color: #000000;
         -fx-font-size: 16px;
@@ -163,7 +163,7 @@
       <Insets right="20" left="20" bottom="20"/>
     </padding>
 
-    <Button text="Change Address"
+    <Button fx:id="changeBtn" text="Change Address"
             onAction="#handleAddress"
             style="-fx-font-size: 16px;
            -fx-text-fill: #000000;

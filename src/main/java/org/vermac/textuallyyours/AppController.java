@@ -41,6 +41,7 @@ public class AppController {
     String initialised = AppStateManager.fetchProperty("initialised");
     String serverIP = AppStateManager.fetchProperty("serverIP");
     String admin = AppStateManager.fetchProperty("admin");
+    String dynamicTypingEnabled = AppStateManager.fetchProperty("dynamicTypingEnabled");
     String me = AppStateManager.fetchProperty("username");
     String otherUser = AppStateManager.fetchProperty("otherUser");
     String recipient = AppStateManager.fetchProperty("otherUserEmail");
@@ -120,6 +121,7 @@ public class AppController {
     // Apply settings immediately when they are saved
     public void applySettings() {
         window.setStyle("-fx-background-color: " + savedColor);
+        dynamicLabel.setVisible(dynamicTypingEnabled.equals("true"));
     }
 
     // Method to update settings
