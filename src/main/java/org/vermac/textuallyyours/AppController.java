@@ -273,12 +273,12 @@ public class AppController {
             ButtonType noButton = new ButtonType("Some other time :(");
 
             String buttonStyle = "-fx-border-width: 1px; -fx-border-color: " +
-                    "black;" +
-                    " " +
-                    "-fx-border-radius: 5px; -fx-background-color: " +
+                    "black; -fx-border-radius: 5px; -fx-background-color: " +
                     "transparent; -fx-font-family: Monaco, 'Courier New', " +
-                    "monospace;";
+                    "monospace; -fx-font-size: 14px";
             String labelStyle = "-fx-font-family: Monaco, 'Courier New', " +
+                    "monospace; -fx-font-size: 16px;";
+            String contentStyle = "-fx-font-family: Monaco, 'Courier New', " +
                     "monospace; -fx-font-size: 16px;";
             alert.getButtonTypes().setAll(yesButton, noButton);
 
@@ -296,6 +296,11 @@ public class AppController {
             Label header = (Label) dialogPane.lookup(".header-panel .label");
             if (header != null) {
                 header.setStyle(labelStyle + "-fx-font-size: 16px");
+            }
+
+            Label content = (Label) dialogPane.lookup(".content.label");
+            if (content != null) {
+                content.setStyle(contentStyle);
             }
 
             alert.showAndWait().ifPresent(response -> {
@@ -321,7 +326,10 @@ public class AppController {
             Platform.runLater(() -> event.setText("Aww, it's confirmed! 🎉 You're in for a fun time! 🥳"));
             NotificationSender.sendEmail(recipient, "event", eventDetails[1], eventDetails[0], eventDetails[2], eventDetails[3]);
         } else {
-            Platform.runLater(() -> event.setText("Aww, maybe next time! 😢"));
+            Platform.runLater(() -> {
+                event.setText("Aww, maybe next time! 😢");
+                event.setId("");
+            });
         }
     }
 
