@@ -22,6 +22,7 @@ public class InstallerApplication extends Application {
 
         primaryStage.setOnCloseRequest(windowEvent -> {
             Platform.exit();
+            System.exit(0);
         });
         primaryStage.show();
     }

@@ -151,6 +151,8 @@ public class InstallerController {
             stage.setTitle("Room Information");
             stage.setScene(scene);
             stage.show();
+
+            stage.setOnCloseRequest(event -> System.exit(0));
         } catch (IOException e) {
             System.out.println(e.getMessage());
             showAlert("Error", "Failed to load Chat Information screen.", Alert.AlertType.ERROR);
@@ -173,6 +175,8 @@ public class InstallerController {
             stage.setTitle("Join Room");
             stage.setScene(scene);
             stage.show();
+
+            stage.setOnCloseRequest(event -> System.exit(0));
         } catch (IOException e) {
             System.out.println(e.getMessage());
             showAlert("Error", "Failed to load Join Room screen.", Alert.AlertType.ERROR);
