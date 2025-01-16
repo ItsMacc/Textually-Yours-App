@@ -35,7 +35,7 @@ public class AppController {
     private BufferedReader input;
     private PrintWriter output;
     private Socket socket;
-    private boolean hasSentNotification = true;
+    private boolean hasSentNotification = false;
 
     String roomKey = AppStateManager.fetchProperty("roomKey");
     String initialised = AppStateManager.fetchProperty("initialised");
