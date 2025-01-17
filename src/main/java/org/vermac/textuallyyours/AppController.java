@@ -302,10 +302,9 @@ public class AppController {
 
         HBox hbox = new HBox();
         hbox.setSpacing(10);
-
         if (isEvent) {
             messageLabel.setOpacity(0.85);
-            messageLabel.setStyle("-fx-background-color: transparent; -fx-padding: 15px; -fx-border-radius: 15px; -fx-background-radius: 15px; -fx-border-width: 2px; -fx-border-color: #FF9800; -fx-font-size: 16px; -fx-text-fill: #000000; -fx-font-family: Monaco, 'Courier New', monospace;");
+            messageLabel.setStyle("-fx-background-color: #f3f3f3; -fx-padding: 10px; -fx-border-radius: 10px; -fx-background-radius: 15px; -fx-background-insets: 0;-fx-border-width: 3px; -fx-border-color: #000000; -fx-font-size: 16px; -fx-text-fill: #000000; -fx-font-family: Monaco, 'Courier New', monospace;-fx-opacity: 0.7;");
             if (isSent) {
                 messageLabel.setId("eventLabel");
                 messageLabel.setText(messageLabel.getText() + "\n\nWaiting for " + otherUser + "'s response...");
@@ -372,6 +371,7 @@ public class AppController {
         try {
             Scene scene = new Scene(fxmlLoader.load(), width, height);
             Stage stage = new Stage();
+            stage.setResizable(false);
 
             switch (fxml) {
                 case "address.fxml" -> {

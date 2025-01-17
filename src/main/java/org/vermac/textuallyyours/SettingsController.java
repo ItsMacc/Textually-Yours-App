@@ -41,9 +41,9 @@ public class SettingsController {
     }
 
     public void resetSettings() {
-        String prevSavedColor = AppStateManager.fetchProperty("backgroundColor");
+        AppStateManager.updateProperty("backgroundColor", "#a459cdff");
+        color.setValue(Color.valueOf("#a459cdff"));
 
-        color.setValue(Color.valueOf(prevSavedColor));
         mainAppController.applySettings();
     }
 
