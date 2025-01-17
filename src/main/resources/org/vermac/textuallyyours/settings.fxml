@@ -21,6 +21,15 @@
         <ColorPicker fx:id="color" style="-fx-font-size: 14px"/>
     </HBox>
 
+    <HBox alignment="CENTER_LEFT" spacing="20">
+        <!-- Bubble Color Selection -->
+        <Label text="Message Bubble Color" minWidth="200"
+               style="-fx-text-fill: #000000;
+               -fx-font-size: 16px;
+               -fx-font-family: Monaco, 'Courier New', monospace;"/>
+        <ColorPicker fx:id="bubble" style="-fx-font-size: 14px"/>
+    </HBox>
+
     <Region VBox.vgrow="ALWAYS"/>
 
     <!-- Save/ Reset buttons -->

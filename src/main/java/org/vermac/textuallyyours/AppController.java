@@ -6,6 +6,7 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -31,6 +32,15 @@ public class AppController {
     private static final int WAIT_TIME_MS = 5 * 60 * 1000; // 5 minutes
     private static final ExecutorService executor = Executors.newCachedThreadPool();
     private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("d MMMM, hh:mm a");
+    private static final String style = "-fx-padding: 10px; " +
+            "-fx-border-color: #000000; " +
+            "-fx-font-size: 16px; " +
+            "-fx-background-radius: 12px; " +
+            "-fx-text-fill: #000000; " +
+            "-fx-font-family: Monaco, 'Courier New', monospace; " +
+            "-fx-opacity: 0.65; ";
+
+
 
     private BufferedReader input;
     private PrintWriter output;
@@ -45,6 +55,7 @@ public class AppController {
     String otherUser = AppStateManager.fetchProperty("otherUser");
     String recipient = AppStateManager.fetchProperty("otherUserEmail");
     String savedColor = AppStateManager.fetchProperty("backgroundColor");
+    String bubbleColor = AppStateManager.fetchProperty("bubbleColor");
 
     // FXML resources
     @FXML public StackPane window;
@@ -76,7 +87,10 @@ public class AppController {
             for (Message m : messageList) {
                 String sender = m.getSender();
                 String content = m.getContent();
-                addMessageToContainer(content, sender.equals(AppStateManager.getUserID()), false);
+                addMessageToContainer(content,
+                        sender.equals(AppStateManager.getUserID()),
+                        false,
+                        bubbleColor);
             }
 
             if (isAdmin) {
@@ -107,7 +121,7 @@ public class AppController {
         if (message.getText() != null && !message.getText().trim().isEmpty()) {
             startSendingThread();
             AppStateManager.saveMessage(AppStateManager.getUserID(), AppStateManager.fetchProperty("otherUserID"), message.getText().trim());
-            addMessageToContainer(message.getText(), true, false);
+            addMessageToContainer(message.getText(), true, false, bubbleColor);
             message.clear();
         }
     }
@@ -120,13 +134,21 @@ public class AppController {
     // Apply settings immediately when they are saved
     public void applySettings() {
         savedColor = AppStateManager.fetchProperty("backgroundColor");
+        bubbleColor = AppStateManager.fetchProperty("bubbleColor");
+
         window.setStyle("-fx-background-color: " + savedColor);
+        changeBubbleColor(bubbleColor);
     }
 
     // Method to update settings
     public void updateBackgroundColor(Color color) {
         String hexColor = "#" + color.toString().substring(2);
         window.setStyle("-fx-background-color: " + hexColor);
+    }
+
+    public void updateBubbleColor(Color color) {
+        String hexColor = "#" + color.toString().substring(2);
+        changeBubbleColor(hexColor);
     }
 
     // Start the server
@@ -249,7 +271,7 @@ public class AppController {
         String outputMessage = Arrays.toString(outputArray);
 
         output.println("E: " + outputMessage);
-        addMessageToContainer(message.substring(8), true, true);
+        addMessageToContainer(message.substring(8), true, true, "transparent");
     }
 
     private void event(String text) {
@@ -288,14 +310,16 @@ public class AppController {
         } else if (text.startsWith("E_C: ")) {
             eventConfirmation(text);
         } else if (text.startsWith("N: ")) {
-            Platform.runLater(() -> addMessageToContainer(text.substring(3), false, false));
+            Platform.runLater(() -> addMessageToContainer(text.substring(3),
+                    false, false, bubbleColor));
             String otherUserID = AppStateManager.fetchProperty("otherUserID");
             AppStateManager.saveMessage(otherUserID, AppStateManager.getUserID(), text.substring(3));
         }
     }
 
     // Method to add messages to the container
-    private void addMessageToContainer(String messageText, boolean isSent, boolean isEvent) {
+    private void addMessageToContainer(String messageText, boolean isSent,
+                                       boolean isEvent, String... color) {
         Label messageLabel = new Label(messageText.trim());
         messageLabel.setWrapText(true);
         messageLabel.setMaxWidth(450);
@@ -304,13 +328,20 @@ public class AppController {
         hbox.setSpacing(10);
         if (isEvent) {
             messageLabel.setOpacity(0.85);
-            messageLabel.setStyle("-fx-background-color: #f3f3f3; -fx-padding: 10px; -fx-border-radius: 10px; -fx-background-radius: 15px; -fx-background-insets: 0;-fx-border-width: 3px; -fx-border-color: #000000; -fx-font-size: 16px; -fx-text-fill: #000000; -fx-font-family: Monaco, 'Courier New', monospace;-fx-opacity: 0.7;");
+            messageLabel.setStyle(style + "-fx-background-color: #f3f3f3; " +
+                    "-fx-border-radius: 12px; " +
+                    "-fx-background-insets: 0; " +
+                    "-fx-border-width: 3px; " +
+                    "-fx-opacity: 0.7; ");
+
             if (isSent) {
                 messageLabel.setId("eventLabel");
                 messageLabel.setText(messageLabel.getText() + "\n\nWaiting for " + otherUser + "'s response...");
             }
         } else {
-            messageLabel.setStyle("-fx-background-color: transparent; -fx-padding: 10px; -fx-border-radius: 15px; -fx-border-width: 2px; -fx-border-color: #000000; -fx-font-size: 16px; -fx-text-fill: #000000; -fx-font-family: Monaco, 'Courier New', monospace;");
+            messageLabel.setStyle(style + "-fx-background-color: " + color[0] + "; " +
+                "-fx-border-radius: 12px; " +
+                "-fx-border-width: 2px; ");
         }
 
         if (isSent) {
@@ -489,5 +520,18 @@ public class AppController {
                 output.println("E_C: NO.");
             }
         });
+    }
+
+    private void changeBubbleColor(String color) {
+        var messages = container.getChildren();
+
+        for (var node : messages) {
+            HBox messageBox = (HBox) node;
+            for (var message : messageBox.getChildren()) {
+                message.setStyle(style + "-fx-background-color: "+color+";" +
+                        "-fx-border-radius: 12px; " +
+                        "-fx-border-width: 2px;");
+            }
+        }
     }
 }

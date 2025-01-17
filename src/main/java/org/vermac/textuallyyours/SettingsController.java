@@ -15,17 +15,23 @@ public class SettingsController {
     @FXML
     private ColorPicker color;
     @FXML
+    private ColorPicker bubble;
+    @FXML
     private Button save;
     @FXML
     private Button reset;
 
     public void initialize() {
         String savedColor = AppStateManager.fetchProperty("backgroundColor");
+        String savedBubble = AppStateManager.fetchProperty("bubbleColor");
 
         color.setValue(Color.valueOf(savedColor));
+        bubble.setValue(Color.valueOf(savedBubble));
 
         color.setOnAction(event -> updateColorPreview());
+        bubble.setOnAction(event -> updateBubblePreview());
     }
+
 
     public void setMainController(AppController mainAppController) {
         this.mainAppController = mainAppController;
@@ -34,9 +40,16 @@ public class SettingsController {
     public void saveSettings(ActionEvent event) {
         AppStateManager.updateProperty("backgroundColor", "#" + color.getValue().toString().substring(2));
 
+        if (bubble.getValue() == null) {
+            AppStateManager.updateProperty("bubbleColor", "transparent");
+        } else {
+            AppStateManager.updateProperty("bubbleColor", "#" + bubble.getValue().toString().substring(2));
+        }
+
         Stage currentStage =
                 (Stage) ((Node) event.getSource()).getScene().getWindow();
         currentStage.close();
+
         mainAppController.applySettings();
     }
 
@@ -44,11 +57,19 @@ public class SettingsController {
         AppStateManager.updateProperty("backgroundColor", "#a459cdff");
         color.setValue(Color.valueOf("#a459cdff"));
 
+        AppStateManager.updateProperty("bubbleColor", "transparent");
+        bubble.setValue(Color.TRANSPARENT);
+
         mainAppController.applySettings();
     }
 
     private void updateColorPreview() {
         Color newColor = color.getValue();
         mainAppController.updateBackgroundColor(newColor);
+    }
+
+    private void updateBubblePreview() {
+        Color newBubble = bubble.getValue();
+        mainAppController.updateBubbleColor(newBubble);
     }
 }
