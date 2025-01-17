@@ -6,7 +6,6 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
@@ -88,9 +87,7 @@ public class AppController {
                 String sender = m.getSender();
                 String content = m.getContent();
                 addMessageToContainer(content,
-                        sender.equals(AppStateManager.getUserID()),
-                        false,
-                        bubbleColor);
+                        sender.equals(AppStateManager.getUserID()), false);
             }
 
             if (isAdmin) {
@@ -121,7 +118,7 @@ public class AppController {
         if (message.getText() != null && !message.getText().trim().isEmpty()) {
             startSendingThread();
             AppStateManager.saveMessage(AppStateManager.getUserID(), AppStateManager.fetchProperty("otherUserID"), message.getText().trim());
-            addMessageToContainer(message.getText(), true, false, bubbleColor);
+            addMessageToContainer(message.getText(), true, false);
             message.clear();
         }
     }
@@ -271,7 +268,7 @@ public class AppController {
         String outputMessage = Arrays.toString(outputArray);
 
         output.println("E: " + outputMessage);
-        addMessageToContainer(message.substring(8), true, true, "transparent");
+        addMessageToContainer(message.substring(8), true, true);
     }
 
     private void event(String text) {
@@ -311,15 +308,14 @@ public class AppController {
             eventConfirmation(text);
         } else if (text.startsWith("N: ")) {
             Platform.runLater(() -> addMessageToContainer(text.substring(3),
-                    false, false, bubbleColor));
+                    false, false));
             String otherUserID = AppStateManager.fetchProperty("otherUserID");
             AppStateManager.saveMessage(otherUserID, AppStateManager.getUserID(), text.substring(3));
         }
     }
 
     // Method to add messages to the container
-    private void addMessageToContainer(String messageText, boolean isSent,
-                                       boolean isEvent, String... color) {
+    private void addMessageToContainer(String messageText, boolean isSent, boolean isEvent) {
         Label messageLabel = new Label(messageText.trim());
         messageLabel.setWrapText(true);
         messageLabel.setMaxWidth(450);
@@ -328,10 +324,9 @@ public class AppController {
         hbox.setSpacing(10);
         if (isEvent) {
             messageLabel.setOpacity(0.85);
-            messageLabel.setStyle(style + "-fx-background-color: #f3f3f3; " +
+            messageLabel.setStyle(style + "-fx-background-color: " + bubbleColor + "; " +
                     "-fx-border-radius: 12px; " +
-                    "-fx-background-insets: 0; " +
-                    "-fx-border-width: 3px; " +
+                    "-fx-border-width: 2px; " +
                     "-fx-opacity: 0.7; ");
 
             if (isSent) {
@@ -339,7 +334,7 @@ public class AppController {
                 messageLabel.setText(messageLabel.getText() + "\n\nWaiting for " + otherUser + "'s response...");
             }
         } else {
-            messageLabel.setStyle(style + "-fx-background-color: " + color[0] + "; " +
+            messageLabel.setStyle(style + "-fx-background-color: " + bubbleColor + "; " +
                 "-fx-border-radius: 12px; " +
                 "-fx-border-width: 2px; ");
         }
