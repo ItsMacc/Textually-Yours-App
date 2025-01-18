@@ -5,7 +5,6 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
@@ -20,8 +19,6 @@ public class EventController {
 
     @FXML
     private StackPane root;
-    @FXML
-    private ImageView bgImage;
     @FXML
     private TextField eventName;
     @FXML

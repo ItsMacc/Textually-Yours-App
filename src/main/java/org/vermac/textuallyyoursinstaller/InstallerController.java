@@ -1,6 +1,5 @@
 package org.vermac.textuallyyoursinstaller;
 
-import com.AppState.io.AppStateManager;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;

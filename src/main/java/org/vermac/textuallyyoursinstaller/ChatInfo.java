@@ -67,10 +67,7 @@ public class ChatInfo {
             exit.setVisible(true);
 
             client.close();
-            serverSocket.close();
-        } catch (IOException ignored) {
-            System.out.println(ignored.getMessage());
-        }
+        } catch (IOException ignored) {}
     }
 
     /**
